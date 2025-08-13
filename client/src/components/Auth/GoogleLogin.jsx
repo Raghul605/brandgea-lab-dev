@@ -30,7 +30,7 @@ export default function GoogleLoginButton() {
         name: data.user.name ?? decoded.name,
         email: data.user.email ?? decoded.email,
         picture: data.user.picture ?? decoded.picture,
-        country: data.user.country ?? (decoded.locale?.split("-")[1] || "India"),
+        country: "India",
         mobile: data.user.mobile ?? null,
         };
         login(userData, data.token);

@@ -3,14 +3,12 @@ import jwt from "jsonwebtoken";
 import { jwtDecode } from "jwt-decode";
 import User from "../models/User.js";
 
+
 export const googleLogin = async (req, res) => {
   try {
     const { token } = req.body;
 
-    // Use jwt_decode directly
     const decoded = jwtDecode(token);
-
-    // Validate required fields
     if (!decoded.sub || !decoded.email || !decoded.name) {
       return res.status(400).json({ error: "Invalid Google token" });
     }
@@ -20,7 +18,7 @@ export const googleLogin = async (req, res) => {
       name: decoded.name,
       email: decoded.email,
       picture: decoded.picture,
-      country: decoded.locale?.split("-")[1] || "Unknown",
+      country: "India",
     };
 
     let user = await User.findOne({ googleId: decoded.sub });
@@ -30,10 +28,10 @@ export const googleLogin = async (req, res) => {
       await user.save();
     } else {
       user.lastLogin = Date.now();
+      user.country = user.country || userData.country; // Save country if not already set
       await user.save();
     }
 
-    // Create JWT token that expires in 24 hours
     const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "24h",
     });
@@ -73,7 +71,7 @@ export const updateMobile = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       userId,
       { mobile: normalized },
-      { new: true, runValidators: true , context: "query"}
+      { new: true, runValidators: true, context: "query" }
     );
 
     if (!updatedUser) {
@@ -94,7 +92,9 @@ export const updateMobile = async (req, res) => {
     if (error?.code === 11000 && error?.keyPattern?.mobile) {
       return res
         .status(409)
-        .json({ error: "This mobile number is already linked to another account." });
+        .json({
+          error: "This mobile number is already linked to another account.",
+        });
     }
     console.error("Mobile update error:", error);
     return res.status(500).json({ error: "Failed to update mobile number" });

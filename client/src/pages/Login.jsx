@@ -1,19 +1,17 @@
 import { useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import GoogleLoginButton from '../components/Auth/GoogleLogin';
 
 export default function Login() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     if (user) {
-      const from = location.state?.from?.pathname || "/";
-      navigate(from, { replace: true });
+      navigate("/");
     }
-  }, [user, navigate, location]);
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-[#090d16] to-[#0f172a] flex flex-col justify-center items-center px-4 text-center relative overflow-hidden">

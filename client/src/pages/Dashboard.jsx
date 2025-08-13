@@ -25,13 +25,6 @@ export default function Dashboard() {
   const [submitError, setSubmitError] = useState("");
   const { user, updateMobileNumber, token } = useAuth();
 
-  // useEffect(() => {
-  //   if (isDialogOpen && user?.email) {
-  //     sendQuoteEmail(user.email, inputText, quoteData).catch((error) =>
-  //       console.error("Quote email failed:", error)
-  //     );
-  //   }
-  // }, [isDialogOpen]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
