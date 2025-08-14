@@ -117,7 +117,7 @@ export default function Dashboard() {
       setSubmitError(serverMsg);
 
       console.error("Quote generation failed:", error.response?.data || error);
-      // alert(serverMsg || "Failed to generate quote");
+     
     } finally {
       setIsLoading(false);
     }
@@ -206,16 +206,6 @@ const handleImageSelect = (e) => {
             <p className="text-gray-400 mt-2">
               Describe your product in detail and get an instant quote
             </p>
-
-                        <div className="mt-2 text-gray-300">
-              {countryLoading ? (
-                <span>Detecting your country...</span>
-              ) : countryError ? (
-                <span className="text-yellow-500">{countryError} (India)</span>
-              ) : (
-                <span>Pricing for: <span className="font-semibold">{userCountry}</span></span>
-              )}
-            </div>
           </div>
 
           <div className="p-6 max-w-4xl mx-auto">
