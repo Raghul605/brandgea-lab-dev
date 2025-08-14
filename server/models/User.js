@@ -4,7 +4,7 @@ const chatSchema = new mongoose.Schema(
   {
     prompt: {
       text: { type: String, required: true },
-      imageUrls: [{ type: String, required: true }], // Array of image URLs
+      imageUrls: [{ type: String, required: true }],
     },
     manufacturing_costs: {
       type: mongoose.Schema.Types.Mixed,

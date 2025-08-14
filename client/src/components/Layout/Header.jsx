@@ -1,13 +1,20 @@
-import { FiLogOut } from 'react-icons/fi';
-import { useAuth } from '../../context/AuthContext';
+import { FiLogOut } from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Header() {
   const { user, logout } = useAuth();
 
   return (
     <header className="shadow-sm py-4 px-6 flex justify-between items-center">
-      <h1 className="text-xl font-bold text-white">Brandgea Lab</h1>
-      
+      <div className="flex items-center gap-3">
+        <h1 className="text-xl font-bold text-white">Brandgea Lab</h1>
+
+        <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-black shadow-md cursor-pointer">
+          <span className="h-1.5 w-1.5 rounded-full bg-black animate-pulse" />
+          BETA
+        </span>
+      </div>
+
       {user && (
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-3">
@@ -24,11 +31,10 @@ export default function Header() {
                 </span>
               </div>
             )} */}
-        
-              <div className="text-sm text-white font-medium">{user.name}</div>
- 
+
+            <div className="text-sm text-white font-medium">{user.name}</div>
           </div>
-          <button 
+          <button
             onClick={logout}
             className="text-gray-300 hover:text-white transition-colors flex items-center gap-1"
             title="Logout"
