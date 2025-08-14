@@ -10,9 +10,9 @@ function CountryChecker() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('https://ip-api.com/json/');
-      if (response.data.status === 'success') {
-        setCountry(response.data.country);
+      const response = await axios.get('https://free.freeipapi.com/api/json/');
+      if (response.data.countryName) {
+        setCountry(response.data.countryName);
       } else {
         setError('Unable to detect country: ' + response.data.message);
       }
