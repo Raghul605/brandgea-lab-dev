@@ -10,7 +10,7 @@ function CountryChecker() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.get('http://ip-api.com/json/');
+      const response = await axios.get('https://ip-api.com/json/');
       if (response.data.status === 'success') {
         setCountry(response.data.country);
       } else {
