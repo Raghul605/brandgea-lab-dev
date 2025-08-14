@@ -14,8 +14,22 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(",") 
+  : ["http://localhost:5173"];
+
 const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+    origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -28,10 +42,6 @@ app.use(express.json());
 
 app.set("trust proxy", true);
 
-app.use((req, _res, next) => {
-  req.country = "India"; // Default to India
-  next();
-});
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)

@@ -41,6 +41,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("tokenExpiry");
     setUser(null);
     setToken(null);
+
+    window.location.href = "https://www.brandgea.com";
   };
 
   const updateMobileNumber = async (mobile) => {

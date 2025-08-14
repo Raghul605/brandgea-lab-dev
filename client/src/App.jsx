@@ -13,7 +13,7 @@ export default function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route 
-              path="/" 
+              path="/*" 
               element={
                 <ProtectedRoute>
                   <Dashboard />

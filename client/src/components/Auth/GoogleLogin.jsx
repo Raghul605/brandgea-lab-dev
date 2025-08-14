@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
@@ -6,32 +7,45 @@ import { useAuth } from "../../context/AuthContext";
 export default function GoogleLoginButton() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => setIsMounted(false);
+  }, []);
 
   const handleSuccess = async (credentialResponse) => {
+    if (!isMounted) return;
+    
     try {
       const decoded = jwtDecode(credentialResponse.credential);
-
-
-      // Send user data to backend for verification/storage
+      
       const response = await fetch(
         `${import.meta.env.VITE_BACKEND_URL}/api/auth/google`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ token: credentialResponse.credential }),
+          credentials: "include",
         }
       );
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
-      if (response.ok) {
+      if (isMounted) {
         const userData = {
-        id: data.user._id,
-        name: data.user.name ?? decoded.name,
-        email: data.user.email ?? decoded.email,
-        picture: data.user.picture ?? decoded.picture,
-        country: "India",
-        mobile: data.user.mobile ?? null,
+          id: data.user._id,
+          name: data.user.name ?? decoded.name,
+          email: data.user.email ?? decoded.email,
+          picture: data.user.picture ?? decoded.picture,
+          country: "India",
+          mobile: data.user.mobile ?? null,
         };
         login(userData, data.token);
         navigate("/");
@@ -43,15 +57,16 @@ export default function GoogleLoginButton() {
 
   return (
     <div className="flex justify-center">
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={() => console.log("Login Failed")}
-        useOneTap
-        auto_select
-        theme="filled_black"
-        size="large"
-        text="signin_with"
-      />
+      {isMounted && (
+        <GoogleLogin
+          onSuccess={handleSuccess}
+          onError={() => console.log("Login Failed")}
+          useOneTap
+          theme="filled_black"
+          size="large"
+          text="signin_with"
+        />
+      )}
     </div>
   );
 }
