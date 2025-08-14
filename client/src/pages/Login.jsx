@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import GoogleLoginButton from "../components/Auth/GoogleLogin";
-import CountryChecker from "../components/Dashboard/CountryChecker";
 
 export default function Login() {
   const { user } = useAuth();
@@ -61,7 +60,7 @@ export default function Login() {
       {/* Bottom glow simulating a soft horizon */}
       <div className="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#0f172a] to-transparent blur-2xl opacity-60" />
 
-      <CountryChecker />
+
     </div>
   );
 }

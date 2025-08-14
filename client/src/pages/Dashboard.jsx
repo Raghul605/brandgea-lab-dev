@@ -1,5 +1,5 @@
 // src/pages/Dashboard.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import Header from "../components/Layout/Header";
 import ProductDescriptionForm from "../components/Dashboard/ProductDescriptionForm";
@@ -25,6 +25,30 @@ export default function Dashboard() {
   const [submitError, setSubmitError] = useState("");
   const { user, updateMobileNumber, token } = useAuth();
 
+  const [userCountry, setUserCountry] = useState("India");
+  const [countryLoading, setCountryLoading] = useState(false);
+  const [countryError, setCountryError] = useState("");
+
+    useEffect(() => {
+    const detectCountry = async () => {
+      try {
+        setCountryLoading(true);
+        const response = await axios.get('https://free.freeipapi.com/api/json/');
+        if (response.data.countryName) {
+          setUserCountry(response.data.countryName);
+        } else {
+          setCountryError("Country detection failed");
+        }
+      } catch (err) {
+        console.error("Country API error:", err);
+        setCountryError("Network error - using default country");
+      } finally {
+        setCountryLoading(false);
+      }
+    };
+
+    detectCountry();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,7 +67,7 @@ export default function Dashboard() {
     try {
       const formData = new FormData();
       formData.append("prompt", inputText);
-      formData.append("country", "India");
+      formData.append("country", userCountry);
 
       // Append all selected images
       productImages.forEach((image) => {
@@ -82,6 +106,7 @@ export default function Dashboard() {
         pricing,
         updatedCosts: manufacturing_costs,
         sanitizedInput: inputText,
+        country: userCountry,
       });
       setIsDialogOpen(true);
       setSubmitError("");
@@ -181,6 +206,16 @@ const handleImageSelect = (e) => {
             <p className="text-gray-400 mt-2">
               Describe your product in detail and get an instant quote
             </p>
+
+                        <div className="mt-2 text-gray-300">
+              {countryLoading ? (
+                <span>Detecting your country...</span>
+              ) : countryError ? (
+                <span className="text-yellow-500">{countryError} (India)</span>
+              ) : (
+                <span>Pricing for: <span className="font-semibold">{userCountry}</span></span>
+              )}
+            </div>
           </div>
 
           <div className="p-6 max-w-4xl mx-auto">
@@ -196,7 +231,7 @@ const handleImageSelect = (e) => {
             />
 
             <div className="mt-5">
-              <p className="text-white font-medium mb-2 text-center">
+              <p className="text-white font-medium mb-4 text-center">
                 Templates
               </p>
               <div className="grid grid-cols-2 gap-4">
@@ -206,7 +241,7 @@ const handleImageSelect = (e) => {
                     template={item}
                     onClick={() =>
                       setInputText(
-                        `Category: ${item.title}; Product Name: Premium ${item.title}; Variants: [Color: Black, White; Size: S, M, L]; Fabric: ${item.fabric}; GSM: ${item.gsm}; Fit: ${item.fit}`
+                        `Category: ${item.title}; Product Name: Premium ${item.title}; Colors: Black, White; Fabric: ${item.fabric}; GSM: ${item.gsm}; Fit: ${item.fit}`
                       )
                     }
                   />

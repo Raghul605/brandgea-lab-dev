@@ -55,7 +55,7 @@ export default function ProductDescriptionForm({
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
           placeholder="Format Example: Category: T-Shirt; Product Name: Premium Cotton Tee; Variants: [Color: Black, White; Size: S, M, L]; Fabric: 100% Cotton; GSM: 220; Fit: Regular..."
-          className="w-full min-h-[230px] p-6 border border-gray-200 text-gray-700 text-sm rounded-xl placeholder:text-sm"
+          className="w-full min-h-[140px] p-6 border border-gray-200 text-gray-700 text-sm rounded-xl placeholder:text-sm"
         />
 
         <div className="flex justify-between">
