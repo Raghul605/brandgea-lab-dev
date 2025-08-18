@@ -23,9 +23,7 @@ export default function ProductDescriptionForm({
           </div>
         )}
 
-
         {/* Image Preview */}
-
         {imagePreviews && imagePreviews.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {imagePreviews.map((preview, index) => (
