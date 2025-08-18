@@ -27,12 +27,13 @@ export default function Header() {
               <img 
                 src={user.picture} 
                 alt={user.name} 
-                className="w-10 h-10 rounded-full border-2 border-gray-300 object-cover"
+                className="aspect-square w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-300 object-cover"
                 onError={handleImageError}
+                loading="lazy"
               />
             ) : (
-              <div className="bg-gray-700 border-2 border-dashed border-gray-400 rounded-full w-10 h-10 flex items-center justify-center">
-                <span className="text-white text-lg font-bold">
+              <div className="aspect-square w-8 h-8 md:w-10 md:h-10 bg-gray-700 border-2 border-dashed border-gray-400 rounded-full flex items-center justify-center">
+                <span className="text-white text-md md:text-lg font-bold">
                   {user.name.charAt(0).toUpperCase()}
                 </span>
               </div>
