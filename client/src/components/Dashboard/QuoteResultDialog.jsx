@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { FiX, FiImage, FiPhone, FiMail, FiCopy } from "react-icons/fi";
+import { FiX, FiImage, FiPhone, FiMail, FiCopy, FiPlus } from "react-icons/fi";
 
 export default function QuoteResultDialog({
   isOpen,
@@ -64,7 +64,7 @@ export default function QuoteResultDialog({
 
   const copyTechPackToClipboard = () => {
     if (!quoteData.techPack) return;
-    
+
     const techPack = quoteData.techPack;
     const techPackText = `
 Tech Pack Details:
@@ -73,12 +73,18 @@ Tech Pack Details:
 - GSM: ${techPack.gsm || "—"}
 - Colors: ${toArray(techPack.color).join(", ") || "—"}
 - Design: ${humanizeDesign(techPack.Design)}
-- Wash Treatments: ${toArray(techPack.wash_treatments).length
-  ? toArray(techPack.wash_treatments).join(", ")
-  : "None"}
-${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_comments}` : ""}
+- Wash Treatments: ${
+      toArray(techPack.wash_treatments).length
+        ? toArray(techPack.wash_treatments).join(", ")
+        : "None"
+    }
+${
+  techPack.additional_comments
+    ? `- Additional Comments: ${techPack.additional_comments}`
+    : ""
+}
     `.trim();
-    
+
     navigator.clipboard.writeText(techPackText);
     setCopied(true);
   };
@@ -110,18 +116,30 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
               Generated based on your requirements
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-3">
             <button
-              onClick={copyTechPackToClipboard}
-              className="flex items-center text-sm text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition"
-              title="Copy Tech Pack"
+              onClick={handleReset}
+              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium py-2 px-3 rounded-lg hover:bg-gray-100 transition"
+              title="Create New Quote"
             >
-              {copied ? (
-                <span className="text-green-500 text-sm">Copied!</span>
-              ) : (
-                <FiCopy className="w-4 h-4" />
-              )}
+              <FiPlus className="w-4 h-4" />
+              <span className="hidden sm:inline">New</span>
             </button>
+            <button
+              onClick={onContactClick}
+              className="bg-gray-900 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-800 transition shadow-md"
+            >
+              Contact for Manufacturing
+            </button>
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
+              aria-label="Close"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="md:hidden">
             <button
               onClick={onClose}
               className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
@@ -134,7 +152,28 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
 
         {/* Body */}
         {quoteData && (
-          <div className="flex-1 overflow-y-auto p-5 sm:p-6">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            {/* Disclaimer moved to top */}
+            <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 mb-6">
+              <p className="text-sm text-yellow-800 flex">
+                <svg
+                  className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm0-9a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <span>
+                  * This is an AI-generated estimate. Final pricing may vary
+                  based on detailed requirements.
+                </span>
+              </p>
+            </div>
+
             {/* Enhanced User input echo */}
             {quoteData.sanitizedInput && (
               <div className="mb-6 rounded-lg border border-gray-200 bg-white p-3">
@@ -143,8 +182,6 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
                     <span className="text-gray-700 font-semibold">
                       Your Request
                     </span>
-                    <span className="mx-2 text-gray-400 ">•</span>
-                    <span className="text-xs text-gray-600">AI Analysis</span>
                   </div>
                   <p className="text-gray-800 text-base leading-relaxed italic">
                     "{quoteData.sanitizedInput}"
@@ -158,11 +195,31 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
               <div className="flex-1 min-w-0">
                 {/* Tech Pack */}
                 {quoteData.techPack && (
-                  <section className="mb-6 p-5 bg-white rounded-lg border border-gray-200 shadow-sm">
-                    <h4 className="font-semibold mb-4 text-lg text-gray-900 flex items-center">
-                      <span className="w-2 h-5 bg-blue-500 rounded-full mr-2"></span>
-                      Tech Pack Details
-                    </h4>
+                  <section className="mb-6 p-4 sm:p-5 bg-white rounded-lg border border-gray-200 shadow-sm relative">
+                    <div className="flex justify-between items-center mb-4">
+                      <h4 className="font-semibold text-lg text-gray-900 flex items-center">
+                        <span className="w-2 h-5 bg-blue-500 rounded-full mr-2"></span>
+                        Tech Pack Details
+                      </h4>
+                      <button
+                        onClick={copyTechPackToClipboard}
+                        className="flex items-center text-sm text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition"
+                        title="Copy Tech Pack"
+                      >
+                        {copied ? (
+                          <span className="text-green-500 text-sm">
+                            Copied!
+                          </span>
+                        ) : (
+                          <>
+                            <FiCopy className="w-4 h-4 mr-1" />
+                            <span className="text-xs hidden sm:inline">
+                              Copy
+                            </span>
+                          </>
+                        )}
+                      </button>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <DetailItem
@@ -210,7 +267,7 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
                 )}
 
                 {/* Pricing */}
-                <section className="mb-6 p-5 bg-white rounded-lg border border-gray-200 shadow-sm">
+                <section className="mb-6 p-4 sm:p-5 bg-white rounded-lg border border-gray-200 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="font-semibold text-lg text-gray-900 flex items-center">
                       <span className="w-2 h-5 bg-green-500 rounded-full mr-2"></span>
@@ -221,17 +278,17 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
                     </span>
                   </div>
 
-                  <div className="overflow-hidden rounded-lg border border-gray-200">
+                  <div className="overflow-x-auto rounded-lg border border-gray-200">
                     <table className="w-full text-sm">
                       <thead>
                         <tr className="bg-gray-50">
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">
+                          <th className="text-left py-3 px-3 sm:px-4 font-medium text-gray-700">
                             Quantity
                           </th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">
+                          <th className="text-left py-3 px-3 sm:px-4 font-medium text-gray-700">
                             Unit Price
                           </th>
-                          <th className="text-left py-3 px-4 font-medium text-gray-700">
+                          <th className="text-left py-3 px-3 sm:px-4 font-medium text-gray-700">
                             Total Price
                           </th>
                         </tr>
@@ -245,13 +302,13 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
                                 i % 2 === 0 ? "bg-white" : "bg-gray-50/50"
                               }
                             >
-                              <td className="py-3 px-4 font-medium text-gray-900">
+                              <td className="py-3 px-3 sm:px-4 font-medium text-gray-900">
                                 {qty} pcs
                               </td>
-                              <td className="py-3 px-4 text-gray-900">
+                              <td className="py-3 px-3 sm:px-4 text-gray-900">
                                 {formatCurrency(info.price, currency)}
                               </td>
-                              <td className="py-3 px-4 font-semibold text-gray-900">
+                              <td className="py-3 px-3 sm:px-4 font-semibold text-gray-900">
                                 {formatCurrency(
                                   Number(info.price) * Number(qty),
                                   currency
@@ -353,42 +410,21 @@ ${techPack.additional_comments ? `- Additional Comments: ${techPack.additional_c
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="mt-8 pt-6 border-t border-gray-200">
-              <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 mb-6">
-                <p className="text-sm text-yellow-800 flex">
-                  <svg
-                    className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm0-9a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm0 8a1 1 0 100-2 1 1 0 000 2z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <span>
-                    * This is an AI-generated estimate. Final pricing may vary
-                    based on detailed requirements.
-                    {pricingEntries.length > 0 &&
-                      " If you have a better quote, we can match or beat it."}
-                  </span>
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
+            {/* Mobile buttons at bottom */}
+            <div className="md:hidden sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-4 -mb-6 mt-6">
+              <div className="flex gap-3">
                 <button
                   onClick={handleReset}
-                  className="flex-1 bg-white text-gray-800 hover:bg-gray-50 border border-gray-300 font-medium py-3 px-6 rounded-lg transition flex items-center justify-center"
+                  className="flex-1 flex items-center justify-center gap-2 text-gray-700 border border-gray-300 font-medium py-3 rounded-lg transition"
                 >
-                  Create New Quote
+                  <FiPlus className="w-4 h-4" />
+                  New Quote
                 </button>
                 <button
                   onClick={onContactClick}
-                  className="flex-1 text-white font-semibold py-3 px-6 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition shadow-md hover:shadow-lg"
+                  className="flex-1 bg-gray-900 text-white font-medium py-3 rounded-lg transition shadow-md"
                 >
-                  Contact for Manufacturing
+                  Contact
                 </button>
               </div>
             </div>
