@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { createContext, useState, useEffect, useContext, useCallback, useRef } from "react";
 
 const AuthContext = createContext();
 
@@ -6,6 +6,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginRedirect, setLoginRedirect] = useState(null);
+
+  const loginPromiseRef = useRef(null);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -33,6 +37,17 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem("tokenExpiry", expiry.toISOString());
     setUser(userData);
     setToken(newToken);
+    setShowLoginModal(false);
+
+      if (loginPromiseRef.current) {
+    loginPromiseRef.current.resolve();
+    loginPromiseRef.current = null;
+  }
+    
+    if (loginRedirect) {
+      loginRedirect();
+      setLoginRedirect(null);
+    }
   };
 
   const logout = () => {
@@ -42,7 +57,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
 
-    window.location.href = "https://www.brandgea.com";
+    //window.location.href = "https://www.brandgea.com";
   };
 
   const updateMobileNumber = async (mobile) => {
@@ -71,13 +86,36 @@ export const AuthProvider = ({ children }) => {
     return data.user.mobile;
   };
 
+
+  const promptLogin = useCallback((redirectAction) => {
+    setLoginRedirect(() => redirectAction);
+    setShowLoginModal(true);
+  },[]);
+
+const waitForLogin = () => {
+  return new Promise((resolve, reject) => {
+    loginPromiseRef.current = { resolve, reject };
+    if (token) {
+      resolve();
+      loginPromiseRef.current = null;
+    }
+  });
+};
+
+
   return (
     <AuthContext.Provider
-      value={{ user, token, isLoading, login, logout, updateMobileNumber }}
+      value={{ user, token, isLoading, login, logout, updateMobileNumber, showLoginModal,setShowLoginModal, promptLogin, waitForLogin }}
     >
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+};

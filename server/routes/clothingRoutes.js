@@ -9,6 +9,7 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024, files: 2 },
 });
 
+// Main endpoint
 router.post("/validate", protect, upload.array("images", 2), validateClothing);
 
 export default router;

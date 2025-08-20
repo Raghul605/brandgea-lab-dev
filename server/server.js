@@ -36,9 +36,11 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
+
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
+
 
 app.set("trust proxy", true);
 
@@ -61,3 +63,4 @@ app.use("/api/clothing", clothingRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+

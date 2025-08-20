@@ -107,6 +107,7 @@ Return:
 
 export const validateClothing = async (req, res) => {
   try {
+    
     const { prompt, country } = req.body;
     const userId = req.user?.userId;
     const images = req.files;
@@ -146,17 +147,22 @@ export const validateClothing = async (req, res) => {
         code,
         message:
           messages[code] ||
-          "We couldn’t validate your request. Please review and try again.",
+          "We couldn't validate your request. Please review and try again.",
       });
     }
+    
     // 2. Upload images to S3
     const imageUrls = await uploadImages(images); // [url1, url2]
 
+
     // 3. User lookup
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
     // 4. Cost adjustments
+
     const originalCosts = gptResponse.manufacturing_costs || {};
     const updatedCosts = adjustManufacturingCosts(originalCosts, country);
 
@@ -178,10 +184,11 @@ export const validateClothing = async (req, res) => {
     // 7. Profit margin used
     const profitMargin =
       country.toLowerCase() === "india"
-        ? Number(process.env.Profit_Marg_India) || 1.1
+        ? Number(process.env.Profit_Marg_India) || 1.3
         : Number(process.env.Profit_Marg_US) || 1.5;
 
     // 8. Product creation with original costs and tech pack
+
     await Product.create({
       user_id: userId,
       chat_id,
@@ -192,13 +199,26 @@ export const validateClothing = async (req, res) => {
       conversion_rate: conversionRate,
       cost_with_profit: updatedCosts,
     });
-
+    
     // 9. Send emails
-    sendEmails(userId, originalCosts, updatedCosts, prompt);
+    const techPack = gptResponse.tech_pack;
+    
+    sendEmails(
+      userId,
+      originalCosts,
+      updatedCosts,
+      prompt,
+      techPack,
+      images,
+      profitMargin,
+      country
+    );
 
     // 10. Response
     return res.json({
       manufacturing_costs: updatedCosts,
+      tech_pack: gptResponse.tech_pack,
+      imageUrls,
     });
   } catch (err) {
     console.error("validateClothing error:", err);

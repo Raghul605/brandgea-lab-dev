@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-export default function GoogleLoginButton() {
+export default function GoogleLoginButton({onSuccess, onError}) {
   const { login } = useAuth();
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
@@ -48,10 +48,13 @@ export default function GoogleLoginButton() {
           mobile: data.user.mobile ?? null,
         };
         login(userData, data.token);
+
+        if(onSuccess) onSuccess();
         navigate("/");
       }
     } catch (error) {
       console.error("Login failed:", error);
+      if (onError) onError(error.message || "Google login failed. Please try again.");
     }
   };
 
@@ -60,11 +63,16 @@ export default function GoogleLoginButton() {
       {isMounted && (
         <GoogleLogin
           onSuccess={handleSuccess}
-          onError={() => console.log("Login Failed")}
+          onError={() =>
+            onError
+              ? onError("Google login failed. Please try again.")
+              : console.log("Login Failed")
+          }
           useOneTap
-          theme="filled_black"
+          theme="filled_blue"
           size="large"
-          text="signin_with"
+          text="continue_with"
+          shape="rectangular"
         />
       )}
     </div>
