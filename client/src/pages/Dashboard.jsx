@@ -63,18 +63,18 @@ export default function Dashboard() {
       showToast(["Please sign in to continue"]);
       return false;
     }
-    
+
     // Validate inputs
     const validationErrors = [];
     if (!inputText.trim()) {
-            showToast("Please enter a product description", "error");
+      showToast("Please enter a product description", "error");
       return false;
     }
     if (productImages.length === 0) {
       showToast("Please attach at least one image", "error");
       return false;
     }
-    
+
     if (validationErrors.length > 0) {
       showToast(validationErrors);
       return false;
@@ -98,7 +98,7 @@ export default function Dashboard() {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
-          }
+          },
         }
       );
 
@@ -124,7 +124,7 @@ export default function Dashboard() {
       setQuoteData({
         pricing,
         updatedCosts: manufacturing_costs,
-        techPack: tech_pack, 
+        techPack: tech_pack,
         imageUrls: imageUrls,
         sanitizedInput: inputText,
         country: userCountry,
@@ -134,9 +134,9 @@ export default function Dashboard() {
       return true;
     } catch (error) {
       console.error("Quote generation failed:", error);
-      
+
       let errorMessage = "Failed to generate quote. Please try again.";
-      if (error.code === 'ECONNABORTED') {
+      if (error.code === "ECONNABORTED") {
         errorMessage = "Request timeout. Please try again.";
       } else if (error.response?.status === 413) {
         errorMessage = "File size too large. Please use smaller images.";
@@ -144,9 +144,14 @@ export default function Dashboard() {
         errorMessage = "Too many requests. Please try again later.";
       } else {
         const api = error.response?.data;
-        errorMessage = api?.message || api?.reason || api?.error || error.message || errorMessage;
+        errorMessage =
+          api?.message ||
+          api?.reason ||
+          api?.error ||
+          error.message ||
+          errorMessage;
       }
-      
+
       showToast(errorMessage, "error");
       return false;
     } finally {
@@ -273,9 +278,8 @@ export default function Dashboard() {
     );
 
     Promise.all(previewPromises).then((newPreviews) => {
-setImagePreviews((prev) => [...prev, ...newPreviews].slice(0, 2));
-setProductImages((prev) => [...prev, ...validFiles].slice(0, 2));
-
+      setImagePreviews((prev) => [...prev, ...newPreviews].slice(0, 2));
+      setProductImages((prev) => [...prev, ...validFiles].slice(0, 2));
     });
 
     e.target.value = ""; // Reset file input
@@ -480,14 +484,12 @@ setProductImages((prev) => [...prev, ...validFiles].slice(0, 2));
         quoteData={quoteData}
       />
 
-      <ToastNotification 
-        show={toast.show} 
-        message={toast.message} 
-        type={toast.type} 
-        onClose={() => setToast({ show: false, message: "", type: "" })} 
+      <ToastNotification
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ show: false, message: "", type: "" })}
       />
-
     </div>
-    
   );
 }

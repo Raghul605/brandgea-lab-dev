@@ -98,7 +98,7 @@ ${
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black transition-opacity duration-300"
       role="dialog"
       aria-modal="true"
     >
