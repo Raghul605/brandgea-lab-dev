@@ -312,8 +312,9 @@ export default function Dashboard() {
       setTimeout(() => {
         setIsContactModalOpen(false);
         setContactStatus(null);
+        handleReset();
       }, 2000);
-      handleReset();
+      
     } catch (error) {
       console.error("Contact request failed:", error);
       setContactStatus("error");
