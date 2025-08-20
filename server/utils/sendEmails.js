@@ -132,6 +132,19 @@ const wrapHtml = (title, body, footer = "") => `
 </html>
 `;
 
+// Create a shared disclaimer for consistency
+const disclaimerHtml = `
+<div >
+  <p>
+    Note: The above values are AI-generated estimates. Final prices may vary based on your detailed requirements.
+  </p>
+</div>
+`;
+
+const disclaimerText = `
+Note: The above values are AI-generated estimates. Final prices may vary based on your detailed requirements.
+`;
+
 /**
  * Send manufacturing cost emails to client and company, with tech pack formatted in body and images as attachments.
  * @param {String} user_id - MongoDB ObjectId of client
@@ -164,8 +177,12 @@ export default async function sendEmails(
 
     // 2) Build HTML bodies
     const clientFooter = `
-      <p style="color:#6b7280;font:14px/1.5 system-ui;margin-top:16px">
-        If you have a better quote, reply with details and we’ll try to beat it.
+      ${disclaimerHtml}
+      <p>
+        If you have a better quote, reply with details and we'll try to beat it.
+      </p>
+      <p >
+        For a finalized quotation, please reach us at +91 81489 39892.
       </p>
     `;
 
@@ -237,7 +254,9 @@ export default async function sendEmails(
       `Your Product Brief:\n${prompt}\n\n` +
       `Tech Pack Details:\n${JSON.stringify(techPack, null, 2)}\n\n` +
       `Manufacturing Costs:\n${JSON.stringify(updatedCosts, null, 2)}\n\n` +
-      `If you have a better quote, reply with details and we’ll try to beat it.\n\n` +
+      `${disclaimerText}\n\n` +
+      `If you have a better quote, reply with details and we'll try to beat it.\n\n` +
+      `For a finalized quotation, please reach us at +91 81489 39892.\n\n` +
       `— Brandgea Team`;
 
     const companyText =
@@ -245,8 +264,15 @@ export default async function sendEmails(
       `Client: ${user.name} (${clientEmail})\n\n` +
       `Product Brief:\n${prompt}\n\n` +
       `Tech Pack Details:\n${JSON.stringify(techPack, null, 2)}\n\n` +
+      `Profit Margin: ${((profitMargin - 1) * 100).toFixed(1)}%\n` +
+      `Country: ${country}\n\n` +
       `Original Manufacturing Costs (from GPT):\n${JSON.stringify(
         originalCosts,
+        null,
+        2
+      )}\n\n` +
+      `Manufacturing Cost with Profit:\n${JSON.stringify(
+        updatedCosts,
         null,
         2
       )}\n\n` +

@@ -58,7 +58,7 @@ export default function Header() {
 
           {/* Fullscreen Modal for Logout Confirmation */}
           {showLogoutConfirm && (
-            <div className="fixed inset-0 bg-white/30 backdrop-blur-lg flex items-center justify-center z-50">
+            <div className="fixed inset-0 bg-black/80 backdrop-blur-lg flex items-center justify-center z-50">
               <div className="bg-gradient-to-br from-[#FCFEFF] to-[#F0EDFF] rounded-2xl shadow-gray-700 shadow-2xl px-6 pt-4 pb-6 w-80 max-w-[90%]">
                 <h3 className="text-red-700 font-semibold text-lg text-center">Logout</h3>
                 <p className="text-gray-800 mb-4 text-md  text-center">

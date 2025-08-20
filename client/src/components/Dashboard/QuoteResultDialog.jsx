@@ -98,66 +98,66 @@ ${
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
+      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-sm transition-opacity duration-300"
       role="dialog"
       aria-modal="true"
     >
       <div
         ref={dialogRef}
-        className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[95vh] overflow-hidden flex flex-col animate-scale-in"
+        className="bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[85vh] sm:max-h-[80vh] overflow-hidden flex flex-col animate-scale-in"
       >
-        {/* Header */}
-        <div className="p-5 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
-          <div>
-            <h3 className="text-xl sm:text-2xl font-bold text-gray-900">
+        {/* Header - more compact on mobile */}
+        <div className="p-3 sm:p-4 border-b border-gray-200 flex justify-between items-center sticky top-0 bg-white z-10">
+          <div className="max-w-[70%]">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 truncate">
               Your AI Quotation
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">
               Generated based on your requirements
             </p>
           </div>
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center gap-2">
             <button
               onClick={handleReset}
-              className="flex items-center gap-2 text-gray-700 hover:text-gray-900 font-medium py-2 px-3 rounded-lg hover:bg-gray-100 transition"
+              className="flex items-center gap-1 text-gray-700 hover:text-gray-900 font-medium py-1.5 px-2 rounded-lg hover:bg-gray-100 transition"
               title="Create New Quote"
             >
               <FiPlus className="w-4 h-4" />
-              <span className="hidden sm:inline">New</span>
+              <span className="hidden sm:inline text-sm">New</span>
             </button>
             <button
               onClick={onContactClick}
-              className="bg-gray-900 text-white font-medium py-2 px-4 rounded-lg hover:bg-gray-800 transition shadow-md"
+              className="bg-gray-900 text-white font-medium py-1.5 px-3 rounded-lg hover:bg-gray-800 transition shadow-md text-sm"
             >
-              Contact for Manufacturing
+              Contact
             </button>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
+              className="text-gray-500 hover:text-gray-700 p-1.5 rounded-lg hover:bg-gray-100 transition"
               aria-label="Close"
             >
-              <FiX className="w-5 h-5" />
+              <FiX className="w-4 h-4" />
             </button>
           </div>
           <div className="md:hidden">
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 p-2 rounded-lg hover:bg-gray-100 transition"
+              className="text-gray-500 hover:text-gray-700 p-1.5 rounded-lg hover:bg-gray-100 transition"
               aria-label="Close"
             >
-              <FiX className="w-5 h-5" />
+              <FiX className="w-4 h-4" />
             </button>
           </div>
         </div>
 
         {/* Body */}
         {quoteData && (
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
-            {/* Disclaimer moved to top */}
-            <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-4 mb-6">
-              <p className="text-sm text-yellow-800 flex">
+          <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+            {/* Disclaimer */}
+            <div className="bg-yellow-50 border border-yellow-100 rounded-lg p-3 mb-4">
+              <p className="text-xs sm:text-sm text-yellow-800 flex">
                 <svg
-                  className="w-4 h-4 text-yellow-500 mr-2 mt-0.5 flex-shrink-0"
+                  className="w-3.5 h-3.5 text-yellow-500 mr-2 mt-0.5 flex-shrink-0"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
@@ -167,61 +167,58 @@ ${
                     clipRule="evenodd"
                   />
                 </svg>
-                <span>
-                  * This is an AI-generated estimate. Final pricing may vary
-                  based on detailed requirements.
+                <span className="leading-tight">
+                  * This is an AI-generated estimate. Final pricing may vary based on detailed requirements.
                 </span>
               </p>
             </div>
 
             {/* Enhanced User input echo */}
             {quoteData.sanitizedInput && (
-              <div className="mb-6 rounded-lg border border-gray-200 bg-white p-3">
-                <div className="pl-4">
-                  <div className="flex items-center mb-2">
-                    <span className="text-gray-700 font-semibold">
+              <div className="mb-4 rounded-lg border border-gray-200 bg-white p-3">
+                <div className="pl-2">
+                  <div className="flex items-center mb-1.5">
+                    <span className="text-gray-700 font-semibold text-sm">
                       Your Request
                     </span>
                   </div>
-                  <p className="text-gray-800 text-base leading-relaxed italic">
-                    "{quoteData.sanitizedInput}"
+                  <p className="text-gray-800 text-sm sm:text-base leading-relaxed italic">
+                    "{quoteData.sanitizedInput.length > 120 ? 
+                      `${quoteData.sanitizedInput.substring(0, 120)}...` : 
+                      quoteData.sanitizedInput}"
                   </p>
                 </div>
               </div>
             )}
 
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
               {/* Main content */}
               <div className="flex-1 min-w-0">
                 {/* Tech Pack */}
                 {quoteData.techPack && (
-                  <section className="mb-6 p-4 sm:p-5 bg-white rounded-lg border border-gray-200 shadow-sm relative">
-                    <div className="flex justify-between items-center mb-4">
-                      <h4 className="font-semibold text-lg text-gray-900 flex items-center">
-                        <span className="w-2 h-5 bg-blue-500 rounded-full mr-2"></span>
+                  <section className="mb-4 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm relative">
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="font-semibold text-base sm:text-lg text-gray-900 flex items-center">
+                        <span className="w-1.5 h-4 sm:w-2 sm:h-5 bg-blue-500 rounded-full mr-2"></span>
                         Tech Pack Details
                       </h4>
                       <button
                         onClick={copyTechPackToClipboard}
-                        className="flex items-center text-sm text-gray-600 hover:text-gray-900 p-2 rounded-lg hover:bg-gray-100 transition"
+                        className="flex items-center text-xs sm:text-sm text-gray-600 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition"
                         title="Copy Tech Pack"
                       >
                         {copied ? (
-                          <span className="text-green-500 text-sm">
-                            Copied!
-                          </span>
+                          <span className="text-green-500 text-xs sm:text-sm">Copied!</span>
                         ) : (
                           <>
-                            <FiCopy className="w-4 h-4 mr-1" />
-                            <span className="text-xs hidden sm:inline">
-                              Copy
-                            </span>
+                            <FiCopy className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-0.5" />
+                            <span className="text-xs hidden sm:inline">Copy</span>
                           </>
                         )}
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <DetailItem
                         label="Garment Type"
                         value={quoteData.techPack.garment_type}
@@ -254,11 +251,11 @@ ${
                     </div>
 
                     {quoteData.techPack.additional_comments && (
-                      <div className="mt-5 pt-4 border-t border-gray-200">
-                        <h5 className="text-sm font-medium text-gray-700 mb-2">
+                      <div className="mt-4 pt-3 border-t border-gray-200">
+                        <h5 className="text-xs sm:text-sm font-medium text-gray-700 mb-1.5">
                           Additional Comments
                         </h5>
-                        <p className="text-gray-900 leading-relaxed">
+                        <p className="text-gray-900 text-sm leading-relaxed">
                           {quoteData.techPack.additional_comments}
                         </p>
                       </div>
@@ -267,10 +264,10 @@ ${
                 )}
 
                 {/* Pricing */}
-                <section className="mb-6 p-4 sm:p-5 bg-white rounded-lg border border-gray-200 shadow-sm">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-semibold text-lg text-gray-900 flex items-center">
-                      <span className="w-2 h-5 bg-green-500 rounded-full mr-2"></span>
+                <section className="mb-4 p-3 sm:p-4 bg-white rounded-lg border border-gray-200 shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-semibold text-base sm:text-lg text-gray-900 flex items-center">
+                      <span className="w-1.5 h-4 sm:w-2 sm:h-5 bg-green-500 rounded-full mr-2"></span>
                       Pricing
                     </h4>
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
@@ -279,16 +276,16 @@ ${
                   </div>
 
                   <div className="overflow-x-auto rounded-lg border border-gray-200">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-xs sm:text-sm">
                       <thead>
                         <tr className="bg-gray-50">
-                          <th className="text-left py-3 px-3 sm:px-4 font-medium text-gray-700">
+                          <th className="text-left py-2 px-2 sm:px-3 font-medium text-gray-700">
                             Quantity
                           </th>
-                          <th className="text-left py-3 px-3 sm:px-4 font-medium text-gray-700">
+                          <th className="text-left py-2 px-2 sm:px-3 font-medium text-gray-700">
                             Unit Price
                           </th>
-                          <th className="text-left py-3 px-3 sm:px-4 font-medium text-gray-700">
+                          <th className="text-left py-2 px-2 sm:px-3 font-medium text-gray-700">
                             Total Price
                           </th>
                         </tr>
@@ -302,13 +299,13 @@ ${
                                 i % 2 === 0 ? "bg-white" : "bg-gray-50/50"
                               }
                             >
-                              <td className="py-3 px-3 sm:px-4 font-medium text-gray-900">
+                              <td className="py-2 px-2 sm:px-3 font-medium text-gray-900">
                                 {qty} pcs
                               </td>
-                              <td className="py-3 px-3 sm:px-4 text-gray-900">
+                              <td className="py-2 px-2 sm:px-3 text-gray-900">
                                 {formatCurrency(info.price, currency)}
                               </td>
-                              <td className="py-3 px-3 sm:px-4 font-semibold text-gray-900">
+                              <td className="py-2 px-2 sm:px-3 font-semibold text-gray-900">
                                 {formatCurrency(
                                   Number(info.price) * Number(qty),
                                   currency
@@ -319,7 +316,7 @@ ${
                         ) : (
                           <tr>
                             <td
-                              className="py-4 px-4 text-gray-500 text-center"
+                              className="py-3 px-3 text-gray-500 text-center text-xs"
                               colSpan={3}
                             >
                               No pricing information available
@@ -331,7 +328,7 @@ ${
                   </div>
 
                   {pricingEntries.length > 0 && (
-                    <div className="mt-4 text-xs text-gray-500">
+                    <div className="mt-3 text-xs text-gray-500">
                       * Prices include material and basic manufacturing costs.
                       Additional charges may apply for special requirements.
                     </div>
@@ -340,21 +337,21 @@ ${
               </div>
 
               {/* Sidebar with images and actions */}
-              <div className="lg:w-80 flex-shrink-0">
+              <div className="lg:w-72 flex-shrink-0">
                 {/* Images */}
                 {quoteData.imageUrls?.length > 0 && (
-                  <div className="mb-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <h4 className="font-semibold mb-3 text-gray-800 flex items-center">
-                      <FiImage className="mr-2" />
+                  <div className="mb-4 bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <h4 className="font-semibold mb-2 text-gray-800 flex items-center text-sm sm:text-base">
+                      <FiImage className="mr-1.5 w-3.5 h-3.5" />
                       Reference Images
                     </h4>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       {quoteData.imageUrls.map((url, index) => (
                         <div key={index} className="relative group">
                           <img
                             src={url}
                             alt={`Reference ${index + 1}`}
-                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                            className="w-full h-28 object-cover rounded-lg border border-gray-200"
                             loading="lazy"
                           />
                         </div>
@@ -364,9 +361,9 @@ ${
                 )}
 
                 {/* Additional info/actions card */}
-                <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-6">
-                  <h5 className="font-medium text-blue-800 mb-2">Next Steps</h5>
-                  <ul className="text-sm text-blue-700 space-y-1 list-disc pl-5">
+                <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4">
+                  <h5 className="font-medium text-blue-800 mb-1.5 text-sm">Next Steps</h5>
+                  <ul className="text-xs text-blue-700 space-y-1 list-disc pl-4">
                     <li>Discuss manufacturing timeline</li>
                     <li>Request samples</li>
                     <li>Customize your order</li>
@@ -374,36 +371,36 @@ ${
                   </ul>
                 </div>
 
-                <div className="p-4 rounded-xl border border-gray-200 bg-gray-50 text-center">
-                  <h5 className="text-base font-semibold text-gray-900">
+                <div className="p-3 rounded-xl border border-gray-200 bg-gray-50 text-center">
+                  <h5 className="text-sm font-semibold text-gray-900">
                     Need assistance?
                   </h5>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-xs text-gray-600 mt-1">
                     Our team is here to help.
                   </p>
 
                   {/* Stacked vertically */}
-                  <div className="mt-3 flex flex-col items-center justify-center gap-2">
+                  <div className="mt-2 flex flex-col items-center justify-center gap-1.5">
                     <a
                       href="mailto:connect@brandgea.com"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-gray-800 hover:text-gray-900 hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-800 hover:text-gray-900 hover:underline"
                       aria-label="Email connect at brandgea dot com"
                     >
-                      <FiMail className="h-4 w-4" />
+                      <FiMail className="h-3.5 w-3.5" />
                       connect@brandgea.com
                     </a>
 
                     <a
                       href="tel:+918148939892"
-                      className="inline-flex items-center gap-2 text-sm font-medium text-gray-800 hover:text-gray-900 hover:underline"
+                      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-800 hover:text-gray-900 hover:underline"
                       aria-label="Call +91 81489 39892"
                     >
-                      <FiPhone className="h-4 w-4" />
-                      +91&nbsp;81489&nbsp;39892
+                      <FiPhone className="h-3.5 w-3.5" />
+                      +91 81489 39892
                     </a>
                   </div>
 
-                  <p className="mt-3 text-xs text-gray-500">
+                  <p className="mt-2 text-xs text-gray-500">
                     Typically replies within 24 hours.
                   </p>
                 </div>
@@ -411,18 +408,18 @@ ${
             </div>
 
             {/* Mobile buttons at bottom */}
-            <div className="md:hidden sticky bottom-0 bg-white border-t border-gray-200 p-4 -mx-4 -mb-6 mt-6">
-              <div className="flex gap-3">
+            <div className="md:hidden sticky bottom-0 bg-white border-t border-gray-200 p-3 -mx-3 -mb-3 mt-4">
+              <div className="flex gap-2">
                 <button
                   onClick={handleReset}
-                  className="flex-1 flex items-center justify-center gap-2 text-gray-700 border border-gray-300 font-medium py-3 rounded-lg transition"
+                  className="flex-1 flex items-center justify-center gap-1.5 text-gray-700 border border-gray-300 font-medium py-2 rounded-lg transition text-sm"
                 >
-                  <FiPlus className="w-4 h-4" />
+                  <FiPlus className="w-3.5 h-3.5" />
                   New Quote
                 </button>
                 <button
                   onClick={onContactClick}
-                  className="flex-1 bg-gray-900 text-white font-medium py-3 rounded-lg transition shadow-md"
+                  className="flex-1 bg-gray-900 text-white font-medium py-2 rounded-lg transition shadow-md text-sm"
                 >
                   Contact
                 </button>
@@ -438,11 +435,11 @@ ${
 // Sub-component for detail items
 function DetailItem({ label, value }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-0.5">
       <div className="text-xs font-medium text-gray-500 uppercase tracking-wide">
         {label}
       </div>
-      <div className="font-medium text-gray-900">{value || "—"}</div>
+      <div className="font-medium text-gray-900 text-sm">{value || "—"}</div>
     </div>
   );
 }
