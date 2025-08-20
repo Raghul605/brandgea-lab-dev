@@ -74,7 +74,7 @@ export default function ProductDescriptionForm({
           >
             <GoPlusCircle className="w-6 h-6" />
             <span className="text-sm font-medium transition-colors">
-              Attach image ({imagePreviews ? imagePreviews.length : 0}/2)
+              Image ({imagePreviews ? imagePreviews.length : 0}/2)
             </span>
           </button>
           <button
