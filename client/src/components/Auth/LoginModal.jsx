@@ -18,7 +18,7 @@ export default function LoginModal() {
   if (!showLoginModal) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white/30 backdrop-blur-md flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-gradient-to-br from-[#FCFEFF] to-[#F0EDFF] rounded-2xl p-8 w-full max-w-sm shadow-gray-700 shadow-2xl relative">
         {/* Close Button */}
         <button

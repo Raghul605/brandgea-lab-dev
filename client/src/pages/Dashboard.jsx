@@ -320,7 +320,7 @@ setProductImages((prev) => [...prev, ...validFiles].slice(0, 2));
   return (
     <div className="min-h-screen bg-[#030509]">
       <Header />
-      <main className="py-2 px-4">
+      <main className="py-2 px-2">
         <div className="rounded-xl overflow-hidden">
           <div className="p-4 text-center">
             <h2 className="text-3xl font-bold text-gray-200">
