@@ -183,9 +183,7 @@ ${
                     </span>
                   </div>
                   <p className="text-gray-800 text-sm sm:text-base leading-relaxed italic">
-                    "{quoteData.sanitizedInput.length > 120 ? 
-                      `${quoteData.sanitizedInput.substring(0, 120)}...` : 
-                      quoteData.sanitizedInput}"
+                    "{quoteData.sanitizedInput}"
                   </p>
                 </div>
               </div>

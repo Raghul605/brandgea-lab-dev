@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import React, { useCallback, useEffect, useState } from "react";
 import Header from "../components/Layout/Header";
 import ProductDescriptionForm from "../components/Dashboard/ProductDescriptionForm";
@@ -39,12 +38,9 @@ export default function Dashboard() {
         );
         if (response.data.countryName) {
           setUserCountry(response.data.countryName);
-        } else {
-          showToast("Country detection failed", "warning");
         }
       } catch (err) {
         console.error("Country API error:", err);
-        showToast("Network error - using default country", "warning");
       } finally {
         setCountryLoading(false);
       }
@@ -74,7 +70,7 @@ export default function Dashboard() {
       showToast("Please attach at least one image", "error");
       return false;
     }
-
+ 
     if (validationErrors.length > 0) {
       showToast(validationErrors);
       return false;

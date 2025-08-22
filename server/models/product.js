@@ -35,6 +35,11 @@ const productSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed, // adjusted and possibly converted costs
       required: true,
     },
+    quoteNumber: {
+      type: Number,
+      required: true,
+      unique: true,
+    },
   },
   {
     timestamps: true,
@@ -42,5 +47,25 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-const Product = mongoose.model("Product", productSchema);
+productSchema.pre("validate", async function (next) {
+  if (typeof this.quoteNumber === "number") return next();
+
+  try {
+    const lastProduct = await mongoose
+      .model("Product")
+      .findOne({})
+      .sort({ createdAt: -1 })
+      .select("quoteNumber")
+      .lean();
+
+    this.quoteNumber =
+      lastProduct && lastProduct.quoteNumber ? lastProduct.quoteNumber + 1 : 1;
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
+const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
 export default Product;

@@ -1,19 +1,31 @@
 // src/components/Auth/LoginModal.jsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { FiX } from "react-icons/fi";
 import GoogleLoginButton from "./GoogleLogin";
+import ToastNotification from "../UI/ToastNotification";
 
 export default function LoginModal() {
   const auth = useAuth();
 
   const { showLoginModal, setShowLoginModal, isLoading } = auth || {};
   const [error, setError] = useState(null);
+  const [toast, setToast] = useState({show: false, message: "", type: ""});
 
   const handleClose = () => {
     setShowLoginModal(false);
     setError(null);
   };
+
+  useEffect(() => {
+    if(error) {
+      setToast({show: true, message:error, type:"error"});
+            const timer = setTimeout(() => {
+        setToast({ show: false, message: "", type: "" });
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error]);
 
   if (!showLoginModal) return null;
 
@@ -57,15 +69,35 @@ export default function LoginModal() {
         {/* Terms */}
         <p className="text-center text-xs text-gray-400">
           By signing in, you agree to our{" "}
-          <a href="/terms" className="underline hover:text-gray-600">
+          <a
+            href="https://brandgea.com/terms-of-service"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gray-600"
+            onClick={handleClose}
+          >
             Terms
           </a>{" "}
           &{" "}
-          <a href="/privacy" className="underline hover:text-gray-600">
+          <a
+            href="https://brandgea.com/privacy-policy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-gray-600"
+            onClick={handleClose}
+          >
             Privacy Policy
           </a>
         </p>
       </div>
+
+            {/* Toast Notification */}
+      <ToastNotification
+        show={toast.show}
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ show: false, message: "", type: "" })}
+      />
     </div>
   );
 }

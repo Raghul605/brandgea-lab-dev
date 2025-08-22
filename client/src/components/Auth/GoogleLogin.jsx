@@ -68,7 +68,6 @@ export default function GoogleLoginButton({onSuccess, onError}) {
               ? onError("Google login failed. Please try again.")
               : console.log("Login Failed")
           }
-          useOneTap
           theme="filled_blue"
           size="large"
           text="continue_with"
