@@ -20,7 +20,6 @@ export default function ProductDescriptionForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-gradient-to-br from-[#FCFEFF] to-[#F0EDFF] rounded-2xl p-4 space-y-4">
 
-
         {/* Image Preview */}
         {imagePreviews && imagePreviews.length > 0 && (
           <div className="flex flex-wrap gap-2">
