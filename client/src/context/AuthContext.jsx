@@ -1,4 +1,11 @@
-import { createContext, useState, useEffect, useContext, useCallback, useRef } from "react";
+import {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  useCallback,
+  useRef,
+} from "react";
 
 const AuthContext = createContext();
 
@@ -39,15 +46,16 @@ export const AuthProvider = ({ children }) => {
     setToken(newToken);
     setShowLoginModal(false);
 
-      if (loginPromiseRef.current) {
-    loginPromiseRef.current.resolve();
-    loginPromiseRef.current = null;
-  }
-    
+    if (loginPromiseRef.current) {
+      loginPromiseRef.current.resolve();
+      loginPromiseRef.current = null;
+    }
+
     if (loginRedirect) {
       loginRedirect();
       setLoginRedirect(null);
     }
+
   };
 
   const logout = () => {
@@ -86,26 +94,68 @@ export const AuthProvider = ({ children }) => {
     return data.user.mobile;
   };
 
+  const updateUserCountry = async (country) => {
+    if (!user || !token) throw new Error("Not authenticated");
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL || ""}/api/auth/update-country`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ country }), // Ensure this is properly formatted
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to update country");
+      }
+
+      const updatedUser = { ...user, country: data.user.country };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      return data.user.country;
+    } catch (error) {
+      console.error("Update country error:", error);
+      throw error;
+    }
+  };
 
   const promptLogin = useCallback((redirectAction) => {
     setLoginRedirect(() => redirectAction);
     setShowLoginModal(true);
-  },[]);
+  }, []);
 
-const waitForLogin = () => {
-  return new Promise((resolve, reject) => {
-    loginPromiseRef.current = { resolve, reject };
-    if (token) {
-      resolve();
-      loginPromiseRef.current = null;
-    }
-  });
-};
-
+  const waitForLogin = () => {
+    return new Promise((resolve, reject) => {
+      loginPromiseRef.current = { resolve, reject };
+      if (token) {
+        resolve();
+        loginPromiseRef.current = null;
+      }
+    });
+  };
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isLoading, login, logout, updateMobileNumber, showLoginModal,setShowLoginModal, promptLogin, waitForLogin }}
+      value={{
+        user,
+        token,
+        isLoading,
+        login,
+        logout,
+        updateMobileNumber,
+        updateUserCountry,
+        showLoginModal,
+        setShowLoginModal,
+        promptLogin,
+        waitForLogin,
+      }}
     >
       {children}
     </AuthContext.Provider>

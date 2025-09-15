@@ -28,7 +28,7 @@ export default function GoogleLoginButton({onSuccess, onError}) {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ token: credentialResponse.credential }),
-          credentials: "include",
+          // credentials: "include",
         }
       );
 
@@ -49,8 +49,8 @@ export default function GoogleLoginButton({onSuccess, onError}) {
         };
         login(userData, data.token);
 
-        if(onSuccess) onSuccess();
-        navigate("/");
+        onSuccess?.();
+        navigate("/dashboard", { replace: true });
       }
     } catch (error) {
       console.error("Login failed:", error);

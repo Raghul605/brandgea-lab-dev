@@ -27,6 +27,9 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    heading: {
+      type: String,
+    },
     conversion_rate: {
       type: Number,
       required: true,
@@ -67,5 +70,6 @@ productSchema.pre("validate", async function (next) {
   }
 });
 
-const Product = mongoose.models.Product || mongoose.model("Product", productSchema);
+const Product =
+  mongoose.models.Product || mongoose.model("Product", productSchema);
 export default Product;

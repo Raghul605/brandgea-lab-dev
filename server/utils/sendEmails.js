@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import User from "../models/User.js";
 import dotenv from "dotenv";
+import { MailLogger } from "../models/email.log.remainder.model.js";
 
 dotenv.config();
 
@@ -27,7 +28,7 @@ const renderCostsTable = (costs = {}) => {
 
   const rows = Object.entries(tiers)
     .filter(([k]) => k !== "currency")
-    .sort((a, b) => Number(a[0]) - Number(b))
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
     .map(
       ([qty, price]) => `
       <tr>
@@ -150,19 +151,25 @@ Note: The above values are AI-generated estimates. Final prices may vary based o
  * @param {String} user_id - MongoDB ObjectId of client
  * @param {Object} originalCosts - Original manufacturing costs from GPT
  * @param {Object} updatedCosts - Adjusted manufacturing costs
- * @param {String} prompt - User's product prompt
+ * @param {String} heading - Short product heading representing the tech pack
  * @param {Object} techPack - Tech pack data (object)
  * @param {Array} images - Array of image paths or Buffers (use file paths or {buffer, originalname})
+ * @param {Number} profitMargin - Profit margin multiplier
+ * @param {String} country - Country code or name
+ * @param {String} chat_id - MongoDB ObjectId of chat session
+ * @param {String} emailType - email type: 'initial', '6hr', '24hr', etc.
  */
 export default async function sendEmails(
   user_id,
   originalCosts,
   updatedCosts,
-  prompt,
+  heading,
   techPack,
   images = [],
   profitMargin,
-  country
+  country,
+  chat_id,
+  emailType = "initial"
 ) {
   try {
     // 1) Find user for email/name
@@ -175,83 +182,80 @@ export default async function sendEmails(
     const clientEmail = user.email;
     const companyEmail = process.env.COMPANY_EMAIL;
 
-    // 2) Build HTML bodies
+    // 2) Build HTML email bodies
     const clientFooter = `
       ${disclaimerHtml}
       <p>
         If you have a better quote, reply with details and we'll try to beat it.
       </p>
-      <p >
+      <p>
         For a finalized quotation, please reach us at +91 81489 39892.
       </p>
     `;
 
-    // Compose client email body (tech pack formatted as readable HTML)
+    // Compose client email body (using heading)
     const clientBody = wrapHtml(
       "Your Product Manufacturing Cost Details",
       `
-    <p style="font:14px/1.6 system-ui;margin:0 0 12px 0;">Hello ${
-      user.name
-    },</p>
-    <p style="font:14px/1.6 system-ui;margin:0 0 8px 0;">Here are your manufacturing costs for your request.</p>
+      <p style="font:14px/1.6 system-ui;margin:0 0 12px 0;">Hello ${
+        user.name
+      },</p>
+      <p style="font:14px/1.6 system-ui;margin:0 0 8px 0;">Here are your manufacturing costs for your request.</p>
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Your Product Brief</strong></p>
-    <pre style="white-space:pre-wrap;background:#0b1020;color:#e5e7eb;padding:12px;border-radius:8px;margin:0 0 16px 0;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace">${prompt}</pre>
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Product Heading</strong></p>
+      <p style="font:14px/1.6 system-ui;margin:0 0 16px 0;">${heading}</p>
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Tech Pack Details</strong></p>
-    ${renderTechPackHtml(techPack, false)} <!-- false hides complexity_class -->
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Tech Pack Details</strong></p>
+      ${renderTechPackHtml(techPack, false)}
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Manufacturing Cost</strong></p> <!-- updated heading -->
-    ${renderCostsTable(updatedCosts)}
-  `,
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Manufacturing Cost</strong></p>
+      ${renderCostsTable(updatedCosts)}
+      `,
       clientFooter
     );
 
-    // Compose company email body
+    // Compose company email body (using heading)
     const companyBody = wrapHtml(
       "New Client Product Inquiry — Manufacturing Cost Details",
       `
-    <p style="font:14px/1.6 system-ui;margin:0 0 12px 0;">Hello Team,</p>
-    <p style="font:14px/1.6 system-ui;margin:0 0 8px 0;">
-      A client (<strong>${
-        user.name
-      }</strong>, Email: <a href="mailto:${clientEmail}">${clientEmail}</a>) has submitted a new product inquiry.
-    </p>
+      <p style="font:14px/1.6 system-ui;margin:0 0 12px 0;">Hello Team,</p>
+      <p style="font:14px/1.6 system-ui;margin:0 0 8px 0;">
+        A client (<strong>${
+          user.name
+        }</strong>, Email: <a href="mailto:${clientEmail}">${clientEmail}</a>) has submitted a new product inquiry.
+      </p>
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Product Brief</strong></p>
-    <pre style="white-space:pre-wrap;background:#0b1020;color:#e5e7eb;padding:12px;border-radius:8px;margin:0 0 16px 0;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace">${prompt}</pre>
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Product Heading</strong></p>
+      <p style="font:14px/1.6 system-ui;margin:0 0 16px 0;">${heading}</p>
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Tech Pack Details</strong></p>
-    ${renderTechPackHtml(
-      techPack,
-      true
-    )} <!-- true includes complexity_class -->
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Tech Pack Details</strong></p>
+      ${renderTechPackHtml(techPack, true)}
 
-<p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;">
-  <strong>Profit Margin:</strong> ${((profitMargin - 1) * 100).toFixed(
-    1
-  )}% <br/>
-  <strong>Country:</strong> ${country}
-</p>
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;">
+        <strong>Profit Margin:</strong> ${((profitMargin - 1) * 100).toFixed(
+          1
+        )}% <br/>
+        <strong>Country:</strong> ${country}
+      </p>
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Original Manufacturing Costs (from GPT)</strong></p>
-    ${renderCostsTable(originalCosts)}
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Original Manufacturing Costs (from GPT)</strong></p>
+      ${renderCostsTable(originalCosts)}
 
-    <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;">
-      <strong>Manufacturing Cost with Profit</strong>
-    </p>
-    ${renderCostsTable(updatedCosts)}
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;">
+        <strong>Manufacturing Cost with Profit</strong>
+      </p>
+      ${renderCostsTable(updatedCosts)}
 
-    <p style="color:#6b7280;font:13px/1.5 system-ui;margin-top:14px;">
-      For follow-up, contact the client at <a href="mailto:${clientEmail}">${clientEmail}</a>.
-    </p>
-  `
+      <p style="color:#6b7280;font:13px/1.5 system-ui;margin-top:14px;">
+        For follow-up, contact the client at <a href="mailto:${clientEmail}">${clientEmail}</a>.
+      </p>
+      `
     );
 
-    // 3) Prepare plain-text fallbacks
+    // 3) Plain-text fallbacks
     const clientText =
       `Hello ${user.name},\n\n` +
-      `Your Product Brief:\n${prompt}\n\n` +
+      `Product Heading:\n${heading}\n\n` +
       `Tech Pack Details:\n${JSON.stringify(techPack, null, 2)}\n\n` +
       `Manufacturing Costs:\n${JSON.stringify(updatedCosts, null, 2)}\n\n` +
       `${disclaimerText}\n\n` +
@@ -262,7 +266,7 @@ export default async function sendEmails(
     const companyText =
       `Hello Team,\n\n` +
       `Client: ${user.name} (${clientEmail})\n\n` +
-      `Product Brief:\n${prompt}\n\n` +
+      `Product Heading:\n${heading}\n\n` +
       `Tech Pack Details:\n${JSON.stringify(techPack, null, 2)}\n\n` +
       `Profit Margin: ${((profitMargin - 1) * 100).toFixed(1)}%\n` +
       `Country: ${country}\n\n` +
@@ -278,18 +282,17 @@ export default async function sendEmails(
       )}\n\n` +
       `For follow-up, contact the client at ${clientEmail}.`;
 
-    // 4) Prepare attachments (images as direct file attachments)
+    // 4) Prepare attachments
     let attachments = [];
     for (let img of images) {
       if (typeof img === "string") {
-        // File path: guess type from extension
         const ext = img.split(".").pop().toLowerCase();
         const type =
           ext === "jpg" || ext === "jpeg"
             ? "image/jpeg"
             : ext === "png"
             ? "image/png"
-            : "application/octet-stream"; // fallback
+            : "application/octet-stream";
         attachments.push({
           filename: img.split("/").pop(),
           path: img,
@@ -311,6 +314,7 @@ export default async function sendEmails(
       }
     }
 
+    // 5) Send emails
     await Promise.all([
       transporter.sendMail({
         from: `"Brandgea" <${process.env.GMAIL_USER}>`,
@@ -329,6 +333,17 @@ export default async function sendEmails(
         attachments,
       }),
     ]);
+
+    // 6) Log the email in MailLogger
+    await MailLogger.create({
+      userId: user._id,
+      clientEmail,
+      emailType,
+      heading, 
+      relatedChatId: chat_id,
+      stopFurtherEmails: false,
+      reminderSent: { [emailType]: true },
+    });
   } catch (err) {
     console.error("Error sending emails:", err);
   }

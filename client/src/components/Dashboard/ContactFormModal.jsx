@@ -1,4 +1,3 @@
-// src/components/Dashboard/ContactFormModal.jsx
 import React, { useState, useEffect } from "react";
 import { FiX } from "react-icons/fi";
 
@@ -54,19 +53,22 @@ export default function ContactFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <h3 className="text-xl font-semibold">Contact Manufacturing Team</h3>
+        <div className="p-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Contact Manufacturing Team
+          </h3>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-gray-500 hover:text-gray-700 p-1 rounded-lg hover:bg-gray-100 transition"
+            aria-label="Close"
           >
-            <FiX className="w-6 h-6" />
+            <FiX className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           <div>
             <label
               htmlFor="name"
@@ -80,7 +82,7 @@ export default function ContactFormModal({
               id="name"
               value={formData.name}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-2.5 border border-gray-300 rounded-lg text-black text-sm"
               required
             />
           </div>
@@ -100,7 +102,7 @@ export default function ContactFormModal({
               inputMode="numeric"
               pattern="^\\+?[0-9\\s\\-]{10,15}$"
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-2.5 border border-gray-300 text-black rounded-lg text-sm"
               required
             />
           </div>
@@ -118,28 +120,30 @@ export default function ContactFormModal({
               id="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full p-3 border border-gray-300 rounded-lg"
+              className="w-full p-2.5 border border-gray-300 text-black rounded-lg text-sm"
               required
             />
           </div>
+          
           {error && (
-            <div className="p-3 bg-red-50 text-red-700 rounded-lg mb-4">
+            <div className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
               {error}
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-4">
+          {/* Buttons with reversed order on mobile */}
+          <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-3 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium"
+              className="px-3 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium text-sm transition mt-2 sm:mt-0"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-3 text-white bg-black rounded-lg hover:bg-gray-800 font-medium"
+              className="px-3 py-2 text-white bg-gray-900 rounded-lg hover:bg-gray-800 font-medium text-sm transition"
               disabled={isSubmitting}
             >
               {isSubmitting ? "Sending..." : "Submit Request"}

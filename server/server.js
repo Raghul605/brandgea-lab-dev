@@ -2,9 +2,21 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
+import cron from 'node-cron';
+
+
+//Route imports
 import authRoutes from "./routes/authRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import clothingRoutes from "./routes/clothingRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";
+
+//admin route import
+// import clothingAdminRoutes from "./admin/routes/clothingRoute.js";
+import ReminderIntervalRoutes from "./routes/ReminderInterval.routes.js";
+
+//Function Imports
+import { queueDueReminderEmails } from "./utils/queueDueReminderEmails.js";
 
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
@@ -20,10 +32,10 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
   : ["http://localhost:5173"];
 
 const corsOptions = {
-    origin: function (origin, callback) {
+  origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
@@ -36,22 +48,20 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
-
 // Middleware
 app.use(cors(corsOptions));
 app.use(express.json());
 
 // Add security headers middleware
-app.use((req, res, next) => {
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
-  
-  // Also set other security headers
-  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-  res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-  
-  next();
-});
+// app.use((req, res, next) => {
+//   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
 
+//   // Also set other security headers
+//   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+//   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+
+//   next();
+// });
 
 app.set("trust proxy", true);
 
@@ -65,6 +75,11 @@ mongoose
 app.use("/api/auth", authRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/clothing", clothingRoutes);
+app.use("/api/chat", chatRoutes);
+
+// Admin Routes
+// app.use("/api/admin/clothing", clothingAdminRoutes);
+app.use("/api/admin/email-service", ReminderIntervalRoutes);
 
 // app.get('/', (req, res) => {
 //   res.send('Server is running 🚀');
@@ -75,3 +90,16 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
+cron.schedule('0 */4 * * *', () => {
+  console.log('Running scheduled reminder queue job at', new Date());
+  queueDueReminderEmails().catch(err => {
+    console.error('Error in reminder queue job:', err);
+  });
+});
+
+// cron.schedule('*/1 * * * *', () => {
+//   console.log('Running scheduled reminder queue job at', new Date());
+//   queueDueReminderEmails().catch(err => {
+//     console.error('Error in reminder queue job:', err);
+//   });
+// });

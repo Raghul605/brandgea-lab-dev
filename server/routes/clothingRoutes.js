@@ -10,6 +10,7 @@ const upload = multer({
 });
 
 // Main endpoint
-router.post("/validate", protect, upload.array("images", 2), validateClothing);
+// router.post("/validate", protect, upload.array("images", 2), validateClothing);
+router.post("/validate", upload.array("images", 2), validateClothing);
 
 export default router;

@@ -100,3 +100,39 @@ export const updateMobile = async (req, res) => {
     return res.status(500).json({ error: "Failed to update mobile number" });
   }
 };
+
+export const updateCountry = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const { country } = req.body;
+
+
+    if (!country) {
+      return res.status(400).json({ error: "Country is required" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { country },
+      { new: true, runValidators: true, context: "query" }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        picture: updatedUser.picture,
+        country: updatedUser.country,
+        mobile: updatedUser.mobile,
+      },
+    });
+  } catch (error) {
+    console.error("Country update error:", error);
+    return res.status(500).json({ error: "Failed to update country" });
+  }
+};

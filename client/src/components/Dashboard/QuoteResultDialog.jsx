@@ -168,7 +168,8 @@ ${
                   />
                 </svg>
                 <span className="leading-tight">
-                  * This is an AI-generated estimate. Final pricing may vary based on detailed requirements.
+                  * This is an AI-generated estimate. Final pricing may vary
+                  based on detailed requirements.
                 </span>
               </p>
             </div>
@@ -206,11 +207,15 @@ ${
                         title="Copy Tech Pack"
                       >
                         {copied ? (
-                          <span className="text-green-500 text-xs sm:text-sm">Copied!</span>
+                          <span className="text-green-500 text-xs sm:text-sm">
+                            Copied!
+                          </span>
                         ) : (
                           <>
                             <FiCopy className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-0.5" />
-                            <span className="text-xs hidden sm:inline">Copy</span>
+                            <span className="text-xs hidden sm:inline">
+                              Copy
+                            </span>
                           </>
                         )}
                       </button>
@@ -360,7 +365,9 @@ ${
 
                 {/* Additional info/actions card */}
                 <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-4">
-                  <h5 className="font-medium text-blue-800 mb-1.5 text-sm">Next Steps</h5>
+                  <h5 className="font-medium text-blue-800 mb-1.5 text-sm">
+                    Next Steps
+                  </h5>
                   <ul className="text-xs text-blue-700 space-y-1 list-disc pl-4">
                     <li>Discuss manufacturing timeline</li>
                     <li>Request samples</li>

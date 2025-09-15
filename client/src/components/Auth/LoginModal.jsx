@@ -59,6 +59,7 @@ export default function LoginModal() {
         {/*Google Login Button */}
         <div className="flex justify-center mb-6">
           <GoogleLoginButton
+          clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}
             onSuccess={() => {
               setShowLoginModal(false);
             }}
