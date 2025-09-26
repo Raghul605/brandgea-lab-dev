@@ -6,8 +6,8 @@ import sendPaymentReceiptEmail from "../utils/sendPaymentReceiptEmail.js"
 
 const PAYMENT_KEYS = JSON.parse(
   process.env.PAYMENT_KEYS || {
-    basic_plan_99: Number(import.meta.env.basic_plan_99 || 99),
-    standard_plan_999: Number(import.meta.env.standard_plan_999 || 999),
+    basic_plan_499: Number(process.env.basic_plan_499 || 499),
+    standard_plan_999: Number(process.env.standard_plan_999 || 999),
   }
 );
 // const ZOHO_ACCOUNT_ID = process.env.ZOHO_ACCOUNT_ID || "";
@@ -163,7 +163,7 @@ export const createPaymentSessionController = async (req, res) => {
 
     // Call Zoho Payments API to create payment session
     const zohoResponse = await axios.post(
-      `https://payments.zoho.in/api/v1/paymentsessions?account_id=${import.meta.env.ZOHO_ACCOUNT_ID}`,
+      `https://payments.zoho.in/api/v1/paymentsessions?account_id=${process.env.ZOHO_ACCOUNT_ID}`,
       payload,
       {
         headers: {
