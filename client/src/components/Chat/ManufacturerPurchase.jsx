@@ -443,13 +443,13 @@ export default function ManufacturerPurchase({ chatId, paid = false, onPaid }) {
 
           <div className="space-y-3">
             <div>
-              <span className="font-medium text-gray-900 dark:text-white">Step 1:</span>{" "}
+              <span className="font-medium text-gray-900 dark:text-white">Step 1:</span>
               <span className="text-gray-800 text-sm dark:text-gray-200">
                 Our RM will reach you and carefully capture your requirements.
               </span>
             </div>
             <div>
-              <span className="font-medium text-gray-900 dark:text-white">Step 2:</span>{" "}
+              <span className="font-medium text-gray-900 dark:text-white">Step 2:</span>
               <span className="text-gray-800 text-sm dark:text-gray-200">
                 Within 24 hours, you’ll get:
                 <ul className="list-disc pl-5 mt-1 space-y-1">
