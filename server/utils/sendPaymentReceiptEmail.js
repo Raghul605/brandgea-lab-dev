@@ -1,9 +1,9 @@
 import nodemailer from "nodemailer";
 
 // Configure with ENV
-const COMPANY_EMAIL = process.env.COMPANY_EMAIL; // Your company email for notifications
+const COMPANY_EMAIL = process.env.COMPANY_EMAIL; 
 
-export async function sendPaymentReceiptEmail({ payment, userEmail }) {
+export default async function sendPaymentReceiptEmail({ payment, userEmail }) {
   const transporter = nodemailer.createTransport({
     // Example: Gmail SMTP, use your credentials or a transactional provider
     service: "gmail",
