@@ -1,5 +1,6 @@
 static_sites:
   - name: brandgea-lab-dev-frontend
+    rootDir: client
     buildCommand: npm run build
     staticPath: dist
     routes:
