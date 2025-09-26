@@ -10,6 +10,7 @@ import authRoutes from "./routes/authRoutes.js";
 import emailRoutes from "./routes/emailRoutes.js";
 import clothingRoutes from "./routes/clothingRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
 
 //admin route import
 // import clothingAdminRoutes from "./admin/routes/clothingRoute.js";
@@ -76,6 +77,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/email", emailRoutes);
 app.use("/api/clothing", clothingRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/zoho", paymentRoutes);
 
 // Admin Routes
 // app.use("/api/admin/clothing", clothingAdminRoutes);
@@ -96,10 +98,3 @@ cron.schedule('0 */4 * * *', () => {
     console.error('Error in reminder queue job:', err);
   });
 });
-
-// cron.schedule('*/1 * * * *', () => {
-//   console.log('Running scheduled reminder queue job at', new Date());
-//   queueDueReminderEmails().catch(err => {
-//     console.error('Error in reminder queue job:', err);
-//   });
-// });
