@@ -52,6 +52,7 @@ export default function History() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
   const messageContainerRef = useRef(null);
+  const userId = user?._id || user?.id;
 
   useEffect(() => {
     if (user && token) {
@@ -109,7 +110,7 @@ export default function History() {
       const transformedMessages = chat.messages.map((msg, index) => {
         let content = "";
         let type = "user";
-const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
+        const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
           ? msg.content.imageUrls
           : [];
 
@@ -138,7 +139,9 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
 
           // Only show images on the FINAL AI message
           const isFinalLike =
-            type === "final" || msg.isFinal === true || !!msg.content?.tech_pack;
+            type === "final" ||
+            msg.isFinal === true ||
+            !!msg.content?.tech_pack;
 
           if (isFinalLike) {
             // Prefer AI-provided images if present, else fallback to last user images
@@ -162,6 +165,7 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
           isCompleted: msg.isFinal,
           imageUrls,
           chatId: chat._id,
+          Payments_For_ManufacturerFind: chat?.Payments_For_ManufacturerFind === true,
         };
       });
 
@@ -183,29 +187,38 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
     navigate("/dashboard");
   };
 
-    const getLatestSummaryText = useCallback(() => {
+  const getLatestSummaryText = useCallback(() => {
     if (!messages?.length) return "";
 
-    const explicit = [...messages].reverse().find(
-      (m) =>
-        m?.type === "summary" ||
-        m?.gptResponse?.summary ||
-        (typeof m?.content === "string" && m?.content?.trim() && m?.role === "ai")
-    );
-    if (explicit?.gptResponse?.summary) return String(explicit.gptResponse.summary);
+    const explicit = [...messages]
+      .reverse()
+      .find(
+        (m) =>
+          m?.type === "summary" ||
+          m?.gptResponse?.summary ||
+          (typeof m?.content === "string" &&
+            m?.content?.trim() &&
+            m?.role === "ai")
+      );
+    if (explicit?.gptResponse?.summary)
+      return String(explicit.gptResponse.summary);
     if (explicit?.type === "summary") return String(explicit.content ?? "");
 
-    const finalMsg = [...messages].reverse().find(
-      (m) =>
-        m?.type === "final" ||
-        m?.techPack ||
-        m?.gptResponse?.tech_pack ||
-        m?.manufacturingCosts ||
-        m?.gptResponse?.manufacturing_costs
-    );
+    const finalMsg = [...messages]
+      .reverse()
+      .find(
+        (m) =>
+          m?.type === "final" ||
+          m?.techPack ||
+          m?.gptResponse?.tech_pack ||
+          m?.manufacturingCosts ||
+          m?.gptResponse?.manufacturing_costs
+      );
     if (finalMsg) return stringifyFinal(finalMsg);
 
-    const lastAi = [...messages].reverse().find((m) => m.role === "ai" && m.content);
+    const lastAi = [...messages]
+      .reverse()
+      .find((m) => m.role === "ai" && m.content);
     return String(lastAi?.content ?? "");
   }, [messages]);
 
@@ -223,6 +236,17 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
       console.error("Copy failed:", e);
     }
   }, [getLatestSummaryText]);
+
+  const handleChatsChange = (deletedChatId) => {
+    setChats((prev) =>
+      prev.filter((c) => (c.chatId || c._id) !== deletedChatId)
+    );
+    // Optional: if the currently open chat was deleted, reset the right pane
+    if (selectedChat && String(selectedChat._id) === String(deletedChatId)) {
+      setSelectedChat(null);
+      setMessages([]);
+    }
+  };
 
   if (loading) {
     return (
@@ -279,6 +303,8 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
         onNewChat={handleNewChat}
         onClose={() => navigate("/dashboard")}
         previousChats={chats}
+        userId={userId}
+        onChatsChange={handleChatsChange}
         onSelectChat={(chat) => loadChat(chat.chatId || chat._id)}
         currentChat={{ techPack: messages.find((m) => m.techPack)?.techPack }}
       />
@@ -290,6 +316,8 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
             previousChats={chats}
             onNewChat={handleNewChat}
             onSelectChat={(chat) => loadChat(chat.chatId || chat._id)}
+            userId={userId}
+            onChatsChange={handleChatsChange}
           />
         </div>
 
@@ -301,7 +329,8 @@ const rawImageUrls = Array.isArray(msg?.content?.imageUrls)
               {/* Messages area */}
               <div
                 ref={messageContainerRef}
-                className="flex-1 overflow-y-auto p-2 sm:p-4"
+                className="flex-1 overflow-y-auto p-2 sm:p-4 sidebar-scroll"
+                style={{ scrollbarGutter: "stable both-edges" }}
               >
                 {messages.map((message) => (
                   <Message key={message.id} message={message} isHistory />

@@ -434,9 +434,7 @@
 //   );
 // }
 
-
 //////////////////////////////////////////////////////
-
 
 // import React, { useMemo, useState } from "react";
 // import ContactFormModal from "../Dashboard/ContactFormModal";
@@ -834,7 +832,6 @@
 //   );
 // }
 
-
 /////////////////////////////////////////////////////////////
 
 import React, { useMemo, useState } from "react";
@@ -855,7 +852,11 @@ const normalizeImageUrls = (msg) => {
 const formatCurrency = (amount, currency = "INR") => {
   const n = Number(amount || 0);
   try {
-    return new Intl.NumberFormat("en-IN", { style: "currency", currency, maximumFractionDigits: 0 }).format(n);
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(n);
   } catch {
     return `${n.toLocaleString("en-IN")} ${currency}`;
   }
@@ -873,7 +874,11 @@ function CostsTable({ costs }) {
     const { currency = "INR", ...tiers } = costs;
     return Object.entries(tiers)
       .filter(([k]) => k !== "currency")
-      .map(([qty, price]) => ({ qty: Number(qty), price: Number(price), currency }))
+      .map(([qty, price]) => ({
+        qty: Number(qty),
+        price: Number(price),
+        currency,
+      }))
       .sort((a, b) => a.qty - b.qty);
   }, [costs]);
 
@@ -887,16 +892,29 @@ function CostsTable({ costs }) {
           <table className="w-full text-sm border border-gray-200 dark:border-[#333333] rounded-2xl bg-white dark:bg-black">
             <thead className="sticky top-0 bg-gray-50 dark:bg-black">
               <tr>
-                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 dark:text-gray-200">Quantity</th>
-                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 dark:text-gray-200">Price / unit</th>
-                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 dark:text-gray-200">Total</th>
+                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 dark:text-gray-200">
+                  Quantity
+                </th>
+                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 dark:text-gray-200">
+                  Price / unit
+                </th>
+                <th className="text-left py-2.5 px-3 font-semibold text-gray-700 dark:text-gray-200">
+                  Total
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.qty} className="even:bg-gray-50/50 dark:even:bg-[#151515] border-t border-gray-100 dark:border-[#333333]">
-                  <td className="py-2.5 px-3 text-gray-900 dark:text-white">{r.qty.toLocaleString("en-IN")} pcs</td>
-                  <td className="py-2.5 px-3 text-gray-800 dark:text-white">{formatCurrency(r.price, currency)}</td>
+                <tr
+                  key={r.qty}
+                  className="even:bg-gray-50/50 dark:even:bg-[#151515] border-t border-gray-100 dark:border-[#333333]"
+                >
+                  <td className="py-2.5 px-3 text-gray-900 dark:text-white">
+                    {r.qty.toLocaleString("en-IN")} pcs
+                  </td>
+                  <td className="py-2.5 px-3 text-gray-800 dark:text-white">
+                    {formatCurrency(r.price, currency)}
+                  </td>
                   <td className="py-2.5 px-3 font-semibold text-gray-900 dark:text-white">
                     {formatCurrency(r.qty * r.price, currency)}
                   </td>
@@ -909,10 +927,19 @@ function CostsTable({ costs }) {
 
       <div className="grid grid-cols-2 gap-3 md:hidden">
         {rows.map((r) => (
-          <div key={r.qty} className="bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-[#333333] p-3 text-center">
-            <div className="text-xs text-gray-500 dark:text-white mb-1">{r.qty} pcs</div>
-            <div className="text-base font-medium text-gray-900 dark:text-white">{formatCurrency(r.price, currency)}</div>
-            <div className="text-[11px] text-gray-500 dark:text-gray-300 mt-0.5">Total {formatCurrency(r.qty * r.price, currency)}</div>
+          <div
+            key={r.qty}
+            className="bg-white dark:bg-black rounded-xl border border-gray-200 dark:border-[#333333] p-3 text-center"
+          >
+            <div className="text-xs text-gray-500 dark:text-white mb-1">
+              {r.qty} pcs
+            </div>
+            <div className="text-base font-medium text-gray-900 dark:text-white">
+              {formatCurrency(r.price, currency)}
+            </div>
+            <div className="text-[11px] text-gray-500 dark:text-gray-300 mt-0.5">
+              Total {formatCurrency(r.qty * r.price, currency)}
+            </div>
           </div>
         ))}
       </div>
@@ -923,12 +950,19 @@ function CostsTable({ costs }) {
 function TechPackList({ data }) {
   if (!data) return null;
   const colors = Array.isArray(data.color) ? data.color : [];
-  const washes = Array.isArray(data.wash_treatments) ? data.wash_treatments : [];
-  const designs = Array.isArray(data.design) ? data.design : typeof data.design === "string" ? data.design : [];
+  const washes = Array.isArray(data.wash_treatments)
+    ? data.wash_treatments
+    : [];
+  const designs = Array.isArray(data.design)
+    ? data.design
+    : typeof data.design === "string"
+    ? data.design
+    : [];
 
   const renderValue = (val) => {
     if (Array.isArray(val)) {
-      if (!val.length) return <span className="text-sm text-gray-500 dark:text-white">—</span>;
+      if (!val.length)
+        return <span className="text-sm text-gray-500 dark:text-white">—</span>;
       return (
         <div className="flex flex-wrap justify-end gap-1.5">
           {val.map((v, i) => (
@@ -937,7 +971,11 @@ function TechPackList({ data }) {
         </div>
       );
     }
-    return <span className="text-sm font-medium text-gray-900 dark:text-white ml-4 text-right">{val ?? "—"}</span>;
+    return (
+      <span className="text-sm font-medium text-gray-900 dark:text-white ml-4 text-right">
+        {val ?? "—"}
+      </span>
+    );
   };
 
   const designValue = Array.isArray(designs)
@@ -956,16 +994,27 @@ function TechPackList({ data }) {
   return (
     <div className="divide-y divide-gray-100 dark:divide-[#333333]">
       {rows.map((r) => (
-        <div key={r.label} className="py-2 flex items-start justify-between gap-3">
-          <span className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-200">{r.label}</span>
-          <div className="min-w-0 flex-1 text-right">{renderValue(r.value)}</div>
+        <div
+          key={r.label}
+          className="py-2 flex items-start justify-between gap-3"
+        >
+          <span className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-200">
+            {r.label}
+          </span>
+          <div className="min-w-0 flex-1 text-right">
+            {renderValue(r.value)}
+          </div>
         </div>
       ))}
 
       {data.additional_comments && (
         <div className="py-2 flex items-start justify-between gap-3">
-          <span className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-200">Comments</span>
-          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed ml-4 text-right">{data.additional_comments}</p>
+          <span className="text-[11px] uppercase tracking-wide text-gray-500 dark:text-gray-200">
+            Comments
+          </span>
+          <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed ml-4 text-right">
+            {data.additional_comments}
+          </p>
         </div>
       )}
     </div>
@@ -974,6 +1023,7 @@ function TechPackList({ data }) {
 
 export default function Message({ message, isHistory = false }) {
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
   const { user } = useAuth();
   const imageUrls = normalizeImageUrls(message);
 
@@ -985,34 +1035,51 @@ export default function Message({ message, isHistory = false }) {
           {showUserImages && (
             <div className="mt-2 grid grid-cols-2 gap-2">
               {imageUrls.map((url, idx) => (
-                <div key={idx} className="relative group w-28 sm:w-32 md:w-36 aspect-square">
-                  <img src={url} alt={`Uploaded ${idx + 1}`} className="w-32 h-32 object-cover rounded-lg shadow-md" />
+                <div
+                  key={idx}
+                  className="relative group w-28 sm:w-32 md:w-36 aspect-square"
+                >
+                  <img
+                    src={url}
+                    alt={`Uploaded ${idx + 1}`}
+                    className="w-32 h-32 object-cover rounded-lg shadow-md"
+                  />
                 </div>
               ))}
             </div>
           )}
 
-          <div className="bg-[#EDEFF1] text-[#060A21] text-sm rounded-3xl rounded-br-md px-4 py-3">
+          <div className="bg-[#EDEFF1] text-[#060A21] dark:bg-[#333333] dark:text-white text-sm rounded-3xl rounded-br-md px-4 py-3">
             <p className="text-sm">{message.content}</p>
           </div>
-
+          {/* 
           {message.timestamp && (
             <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               {new Date(message.timestamp).toLocaleTimeString()}
             </span>
-          )}
+          )} */}
         </div>
       </div>
     );
   }
 
   // Prefer normalized final data
-  const techPackData = message.techPack || message.gptResponse?.tech_pack || null;
-  const manufacturingCosts = message.manufacturingCosts || message.gptResponse?.manufacturing_costs || null;
+  const techPackData =
+    message.techPack || message.gptResponse?.tech_pack || null;
+  const manufacturingCosts =
+    message.manufacturingCosts ||
+    message.gptResponse?.manufacturing_costs ||
+    null;
+
+    const isManufacturerPaid = message?.Payments_For_ManufacturerFind === true || message?.gptResponse?.Payments_For_ManufacturerFind === true;
 
   // Question or Summary or Generic text => plain bubble
   if (!techPackData || !manufacturingCosts) {
-    const text = message.gptResponse?.question || message.gptResponse?.summary || message.content || "";
+    const text =
+      message.gptResponse?.question ||
+      message.gptResponse?.summary ||
+      message.content ||
+      "";
     return (
       <div className="flex justify-start mb-4 px-2 sm:px-0">
         <div className="flex flex-col items-start max-w-[90%] sm:max-w-[75%] lg:max-w-[80%] xl:max-w-[50%]">
@@ -1031,19 +1098,32 @@ export default function Message({ message, isHistory = false }) {
     <div className="flex justify-start mb-6 px-2 sm:px-0">
       <div className="bg-white dark:bg-black rounded-2xl p-4 sm:p-5 w-full max-w-3xl lg:max-w-4xl border border-gray-200 dark:border-[#333333]">
         <div className="flex items-center mb-6">
-          <div className="w-10 h-10 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-bold">AI</div>
+          <div className="w-10 h-10 rounded-full bg-black dark:bg-white flex items-center justify-center text-white dark:text-black font-bold">
+            AI
+          </div>
           <div className="ml-3">
-            <h3 className="font-semibold text-gray-800 dark:text-white">Product Analysis Complete</h3>
+            <h3 className="font-semibold text-gray-800 dark:text-white">
+              Product Analysis Complete
+            </h3>
           </div>
         </div>
 
         {imageUrls.length > 0 && (
           <div className="mt-6">
-            <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-3">Reference Images</h4>
+            <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-3">
+              Reference Images
+            </h4>
             <div className="flex flex-wrap gap-3">
               {imageUrls.map((url, index) => (
-                <div key={index} className="relative group w-28 sm:w-32 md:w-36 aspect-square">
-                  <img src={url} alt={`Reference ${index + 1}`} className="w-full h-full object-cover rounded-lg shadow-sm" />
+                <div
+                  key={index}
+                  className="relative group w-28 sm:w-32 md:w-36 aspect-square"
+                >
+                  <img
+                    src={url}
+                    alt={`Reference ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg shadow-sm"
+                  />
                   <a
                     href={url}
                     target="_blank"
@@ -1059,13 +1139,17 @@ export default function Message({ message, isHistory = false }) {
         )}
 
         <div className="mb-6 mt-6">
-          <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-3">Tech Pack Details</h4>
+          <h4 className="text-lg font-medium text-gray-800 dark:text-white mb-3">
+            Tech Pack Details
+          </h4>
           <TechPackList data={techPackData} />
         </div>
 
         <div className="space-y-3 mb-6 mt-6">
           <div className="flex items-center justify-between">
-            <h4 className="text-lg font-medium text-gray-800 dark:text-white">Manufacturing Estimate</h4>
+            <h4 className="text-lg font-medium text-gray-800 dark:text-white">
+              Manufacturing Estimate
+            </h4>
             <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 dark:bg-white px-2.5 py-1 text-xs text-gray-700 dark:text-black">
               Currency: {currency}
             </span>
@@ -1075,11 +1159,18 @@ export default function Message({ message, isHistory = false }) {
           </div>
         </div>
 
-        <div className="flex justify-center pt-5 gap-4 flex-col items-center">
-          <button onClick={() => setIsContactModalOpen(true)} className="bg-[#060A21] dark:bg-white text-sm text-white dark:text-black font-medium py-2.5 px-4 rounded-full hover:opacity-95">
+        <div className="flex justify-center gap-4 flex-col items-center">
+          {/* <button
+            onClick={() => setIsContactModalOpen(true)}
+            className="bg-[#060A21] dark:bg-white text-sm text-white dark:text-black font-medium py-2.5 px-4 rounded-full hover:opacity-95"
+          >
             Contact Manufacturer
-          </button>
-          <ManufacturerPurchase chatId={message.chatId} />
+          </button> */}
+          {/* <ManufacturerPurchase chatId={message.chatId} /> */}
+          <ManufacturerPurchase chatId={message.chatId} paid={isManufacturerPaid}
+          onPaid={() => {
+            message.Payments_For_ManufacturerFind = true;
+          }}/>
         </div>
       </div>
 

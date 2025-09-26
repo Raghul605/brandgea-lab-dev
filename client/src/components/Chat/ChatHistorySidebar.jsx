@@ -3,7 +3,7 @@ import { BsStars } from "react-icons/bs";
 import { FiArrowLeft, FiPlus, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
-export default function ChatHistorySidebar({ previousChats, onNewChat, onSelectChat }) {
+export default function ChatHistorySidebar({ previousChats, onNewChat, onSelectChat,userId, onChatsChange }) {
   const navigate = useNavigate();
 
   // Format the date for display
@@ -24,6 +24,30 @@ export default function ChatHistorySidebar({ previousChats, onNewChat, onSelectC
     }
   };
 
+  async function handleDeleteChat(e, chatId) {
+    e.stopPropagation();
+    if (!userId || !chatId) return alert(`Missing ID → userId: ${userId}, chatId: ${chatId}`);
+    const ok = window.confirm("Delete this chat?");
+    if (!ok) return;
+
+    try {
+      const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/delete-chat`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, chatId }),
+      });
+      if (!resp.ok) {
+        const { error, message } = await resp.json().catch(() => ({}));
+        throw new Error(message || error || `Delete failed with ${resp.status}`);
+      }
+      // tell parent to remove it from previousChats
+      onChatsChange?.(chatId);
+    } catch (err) {
+      console.error(err);
+      alert(`Could not delete chat: ${err.message}`);
+    }
+  }
+
   return (
     <div className="h-full flex flex-col">
       <div className="px-3 py-2 border-b border-gray-200 dark:border-[#333333]">
@@ -43,7 +67,8 @@ export default function ChatHistorySidebar({ previousChats, onNewChat, onSelectC
         </button>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2">
+      <div className="flex-1 min-h-0 overflow-y-auto px-3 py-2 sidebar-scroll"
+      style={{ scrollbarGutter: "stable both-edges" }}>
         <h3 className="text-sm text-gray-700 dark:text-gray-400 mb-3">Previous Chats</h3>
         <div className="space-y-2">
           {previousChats && previousChats.length > 0 ? (
@@ -67,9 +92,7 @@ export default function ChatHistorySidebar({ previousChats, onNewChat, onSelectC
                     </div>
                   </div>
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation(); /* delete here */
-                    }}
+                    onClick={(e) => handleDeleteChat(e, id)}
                     className="p-1 text-gray-400 hover:text-red-500"
                   >
                     <FiTrash2 className="w-4 h-4" />

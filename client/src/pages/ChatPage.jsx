@@ -916,6 +916,7 @@ export default function ChatPage() {
           imageUrls: msg.content.imageUrls || [],
           gptResponse: msg.content,
           chatId,
+          Payments_For_ManufacturerFind: response.data?.chat?.Payments_For_ManufacturerFind === true,
         };
       });
 
@@ -929,11 +930,12 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-full flex flex-col">
       <MobileHeader
         onNewChat={handleNewChat}
         currentChat={{ techPack: messages.find((m) => m.techPack)?.techPack }}
         previousChats={previousChats}
+         userId={user?._id}  
         onSelectChat={(chat) => {
           const id = chat.chatId || chat._id;
           if (!id) return;
@@ -941,7 +943,7 @@ export default function ChatPage() {
         }}
       />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-h-0">
         <div className="flex justify-between p-2 sticky top-0 z-20 border-b border-slate-200/70 bg-white/70 dark:bg-black dark:border-[#333333] backdrop-blur supports-[backdrop-filter]:bg-white/50">
           <BackButton />
           <h2 className="text-lg text-black dark:text-white font-medium">AI Product Analyser</h2>
@@ -959,6 +961,7 @@ export default function ChatPage() {
             </button>
           </div>
         </div>
+        
 
         <ChatArea
           messages={messages}

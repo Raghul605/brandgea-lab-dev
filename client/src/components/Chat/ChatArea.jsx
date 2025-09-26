@@ -14,14 +14,14 @@ export default function ChatArea({
   handleRemoveImage,
   handleImageSelect,
   fileInputRef,
-  isChatCompleted, 
-  handlePurchaseManufacturerList
+  isChatCompleted,
+  handlePurchaseManufacturerList,
 }) {
   return (
-    <>
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       <div
         ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-2  sm:p-4 rounded-2xl bg-[#FAFAFA] dark:bg-black space-y-4"
+        className="flex-1 overflow-y-auto p-2  sm:p-4 rounded-2xl bg-[#FAFAFA] dark:bg-black space-y-4 sidebar-scroll"
       >
         {messages.map((message, index) => (
           <Message
@@ -51,17 +51,19 @@ export default function ChatArea({
         )}
       </div>
 
-      <InputArea
-        inputText={inputText}
-        setInputText={setInputText}
-        handleSendMessage={handleSendMessage}
-        isLoading={isLoading}
-        imagePreviews={imagePreviews}
-        handleRemoveImage={handleRemoveImage}
-        handleImageSelect={handleImageSelect}
-        fileInputRef={fileInputRef}
-        isChatCompleted={isChatCompleted}
-      />
-    </>
+      <div className="shrink-0">
+        <InputArea
+          inputText={inputText}
+          setInputText={setInputText}
+          handleSendMessage={handleSendMessage}
+          isLoading={isLoading}
+          imagePreviews={imagePreviews}
+          handleRemoveImage={handleRemoveImage}
+          handleImageSelect={handleImageSelect}
+          fileInputRef={fileInputRef}
+          isChatCompleted={isChatCompleted}
+        />
+      </div>
+    </div>
   );
 }

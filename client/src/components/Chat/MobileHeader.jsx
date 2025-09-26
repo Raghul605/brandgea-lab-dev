@@ -60,6 +60,8 @@ export default function MobileHeader({
   currentChat,
   previousChats,
   onSelectChat,
+  userId,
+  onChatsChange,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showPreviousChats, setShowPreviousChats] = useState(false);
@@ -114,6 +116,30 @@ export default function MobileHeader({
     if (diffDays < 7) return `${diffDays} days ago`;
     return date.toLocaleDateString();
   };
+
+  async function handleDeleteChat(e, chatId) {
+  e.stopPropagation();
+  if (!userId || !chatId) return alert("Missing user or chat ID.");
+  const ok = window.confirm("Delete this chat?");
+  if (!ok) return;
+
+  try {
+    const resp = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/chat/delete-chat`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, chatId }),
+    });
+    if (!resp.ok) {
+      const { error, message } = await resp.json().catch(() => ({}));
+      throw new Error(message || error || `Delete failed with ${resp.status}`);
+    }
+    onChatsChange?.(chatId); // parent updates previousChats
+  } catch (err) {
+    console.error(err);
+    alert(`Could not delete chat: ${err.message}`);
+  }
+}
+
 
   return (
     <>
@@ -200,7 +226,7 @@ export default function MobileHeader({
         >
           <div
             className="fixed bottom-0 left-0 right-0 max-h-[70vh] rounded-t-2xl bg-white dark:bg-black shadow-2xl border-t border-gray-200/70 dark:border-[#333333] p-4"
-            onClick={(e) => e.stopPropagation()}
+            onClick={() => handleDeleteChat()}
           >
             {/* Drag handle */}
             <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300 dark:bg-white" />
