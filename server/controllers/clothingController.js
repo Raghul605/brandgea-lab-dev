@@ -927,7 +927,8 @@ import uploadImages from "../utils/s3Upload.js";
 import sendEmails from "../utils/sendEmails.js";
 import OpenAI from "openai";
 import User from "../models/User.js";
-import Product from "../models/Product.js";
+import Product from "../models/product.js";
+
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 

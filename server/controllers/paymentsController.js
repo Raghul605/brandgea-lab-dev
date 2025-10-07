@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import ManufacturerFindTransaction from "../models/ManufacturerFindTransaction.js";
 import ZohoOauthToken from "../models/ZohoOauthToken.js";
 import sendPaymentReceiptEmail from "../utils/sendPaymentReceiptEmail.js";
-import Product from "../models/Product.js";
+import Product from "../models/product.js";
 
 const PAYMENT_KEYS = JSON.parse(
   process.env.PAYMENT_KEYS || {
