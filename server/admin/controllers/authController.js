@@ -16,7 +16,8 @@ export const loginAdmin = async (req, res) => {
         res.cookie('adminToken', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'Strict',
+            sameSite: 'None',
+            secure: true,  
             maxAge: 24 * 60 * 60 * 1000
         });
 
@@ -27,6 +28,6 @@ export const loginAdmin = async (req, res) => {
 };
 
 export const logoutAdmin = (req, res) => {
-    res.clearCookie('adminToken');
+    res.clearCookie('adminToken', { path: '/', sameSite: 'None', secure: true });
     res.status(200).json({ message: 'Logged out successfully' });
 };
