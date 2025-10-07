@@ -4,6 +4,9 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  build: { outDir: "dist" },
+  publicDir: "public",
+  assetsInclude: ["_redirects"],
   optimizeDeps: {
     include: ["jwt-decode"],
   },
@@ -12,11 +15,10 @@ export default defineConfig({
       "/api": {
         target: "http://localhost:5000",
         changeOrigin: true,
-        
       },
     },
     headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
     },
   },
 });
