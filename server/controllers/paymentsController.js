@@ -2,7 +2,8 @@ import axios from "axios";
 import User from "../models/User.js";
 import ManufacturerFindTransaction from "../models/ManufacturerFindTransaction.js";
 import ZohoOauthToken from "../models/ZohoOauthToken.js";
-import sendPaymentReceiptEmail from "../utils/sendPaymentReceiptEmail.js"
+import sendPaymentReceiptEmail from "../utils/sendPaymentReceiptEmail.js";
+import Product from "../models/Product.js";
 
 const PAYMENT_KEYS = JSON.parse(
   process.env.PAYMENT_KEYS || {
@@ -215,7 +216,6 @@ export const createPaymentSessionController = async (req, res) => {
   }
 };
 
-
 export const zohoPaymentWebhookController = async (req, res) => {
   try {
     const event = req.body;
@@ -262,14 +262,28 @@ export const zohoPaymentWebhookController = async (req, res) => {
       transaction.chatId &&
       transaction.userId
     ) {
-      // Get user's email
+      // Get user's details
       const user = await User.findById(transaction.userId);
       const userEmail = user ? user.email : "";
+      const userName = user ? user.name || "" : "";
+      const userMobile = user ? user.mobile || "" : "";
 
-      // Send payment receipt email
-      await sendPaymentReceiptEmail({
-        payment,
+      // Find product and extract tech_pack & manufacturing_costs
+      const product = await Product.findOne({
+        userId: transaction.userId,
+        chatId: transaction.chatId,
+      });
+      const techPack = product ? product.tech_pack : null;
+      const manufacturingCosts = product ? product.manufacturing_costs : null;
+
+      // Send payment receipt email with additional info
+      await sendPaymentEmails({
         userEmail,
+        userName,
+        userMobile,
+        docId,
+        techPack,
+        manufacturingCosts,
       });
 
       // Update user's chat message Payments_For_ManufacturerFind flag
@@ -308,7 +322,10 @@ export const getManufacturerFindTransactions = async (req, res) => {
     const skip = (page - 1) * limit;
 
     // Only fetch fields needed
-    const transactions = await ManufacturerFindTransaction.find({}, "_id status amount")
+    const transactions = await ManufacturerFindTransaction.find(
+      {},
+      "_id status amount"
+    )
       .sort({ createdAt: sortOrder })
       .skip(skip)
       .limit(limit)

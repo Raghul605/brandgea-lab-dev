@@ -58,11 +58,25 @@ const chatSchema = new mongoose.Schema(
   { _id: true }
 );
 
+const authTokenSchema = new mongoose.Schema(
+  {
+    deviceName: { type: String, required: true },
+    browser: { type: String, required: true },
+    refreshToken: { type: String, required: true },
+    refreshTokenExpiry: { type: Date }, // optional expiry for refresh token
+    sessionToken: { type: String, required: true },
+    sessionTokenExpiry: { type: Date, required: true }, // expiry of session token
+    loggedIn: { type: Boolean, default: true },
+    lastLogin: { type: Date, default: Date.now },
+    userAgent: { type: String }, // client userAgent string
+  },
+  { _id: false }
+);
+
 const userSchema = new mongoose.Schema(
   {
     googleId: {
       type: String,
-      required: true,
       unique: true,
     },
     name: {
@@ -74,8 +88,19 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    mobile: String,
-    picture: String,
+        mobile: {
+      type: String,
+      required: false,
+    },
+        password: {
+      type: String,
+      required: false,
+    },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
+    picture: { type: String, default: "" },
     country: {
       type: String,
       default: "India",
@@ -84,7 +109,8 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    chat: [chatSchema], // Array of chat sessions
+    chat: [chatSchema], 
+    authTokens: [authTokenSchema],
     transactions: [
       {
         ManufacturerFind_collectionId: {

@@ -1,6 +1,9 @@
 import { useMemo } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { formatCurrency } from "../utils/helpers";
+import { useState } from "react";
+import { useEffect } from "react";
+import axios from "axios";
 
 const STATUS_STEPS = [
   "Order Created",
@@ -20,11 +23,39 @@ export default function OrderDetails() {
   const { orderId } = useParams();
   const { state } = useLocation();
 
-  const order = state?.order;
-  const currentStatusIndex = useMemo(
-    () => STATUS_STEPS.indexOf(order?.status || ""),
-    [order]
-  );
+  const [order, setOrder] = useState(state?.order || null);
+  const [loading, setLoading] = useState(!state?.order);
+  useEffect(() => {
+    const needsServerData =
+      !order || !order.status || !Array.isArray(order.status.statusHistory);
+
+    if (orderId && needsServerData) fetchOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
+  const fetchOrder = async () => {
+    try {
+      setLoading(true);
+      const resp = await axios.get(
+        `${
+          import.meta.env.VITE_BACKEND_URL
+        }/api/user-order/order-details/${orderId}`
+      );
+      setOrder(resp.data);
+    } catch (err) {
+      console.error("Error loading order details", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   if (!order) {
     return (
@@ -71,7 +102,7 @@ export default function OrderDetails() {
           </div>
 
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300">
-            {new Date(order.orderDate || Date.now()).toLocaleDateString(
+            {new Date(order.createdAt || Date.now()).toLocaleDateString(
               "en-US",
               {
                 year: "numeric",
@@ -91,10 +122,10 @@ export default function OrderDetails() {
             <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-gray-200 dark:border-[#333333] bg-white">
               <img
                 src={
-                  order.productImage ||
+                  order.files?.[0] ||
                   "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1770&auto=format&fit=crop"
                 }
-                alt={order.productName}
+                alt={order.product?.garmentType}
                 className="h-full w-full object-cover"
                 loading="lazy"
               />
@@ -105,28 +136,29 @@ export default function OrderDetails() {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div>
                 <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-gray-100">
-                  {order.productName}
+                  {order.product?.garmentType || "N/A"}
                 </h3>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
-                  {order.category}
+                  {order.serviceType}
                 </p>
               </div>
             </div>
 
             <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <Info label="Price">{formatCurrency(order.price)}</Info>
-              <Info label="Quantity">{order.quantity}</Info>
+              <Info label="Price">
+                {formatCurrency(order.product?.totalLotValue)}
+              </Info>
+              <Info label="Quantity">{order.product?.totalQuantity}</Info>
               <Info label="Estimated Delivery">
-                {new Date(
-                  order.estimatedDelivery ||
-                    Date.now() + 14 * 24 * 60 * 60 * 1000
-                ).toLocaleDateString()}
+                {order.expectedDeliveryDate
+                  ? new Date(order.expectedDeliveryDate).toLocaleDateString()
+                  : "N/A"}
               </Info>
             </div>
 
             <div className="mt-4">
-              <Info label="Shipping Address">
-                {order.shippingAddress || "N/A"}
+              <Info label="Delivery Location">
+                {order.deliveryLocation || "N/A"}
               </Info>
             </div>
           </div>
@@ -144,38 +176,40 @@ export default function OrderDetails() {
           <div className="absolute left-4 sm:left-6 top-0 bottom-0 w-0.5 bg-gray-300 dark:bg-[#646464]"></div>
           <ul className="space-y-6 sm:space-y-8">
             {STATUS_STEPS.map((step, idx) => {
-              const isCompleted = idx < currentStatusIndex;
-              const isCurrent = idx === currentStatusIndex;
+              const update = order.status?.statusHistory?.find(
+                (s) => s.status === step
+              );
+
+              const currentStatus = order.status?.currentStatus;
+              const currentIndex = STATUS_STEPS.indexOf(currentStatus);
+
+              const isCompleted = idx < currentIndex;
+              const isCurrent = idx === currentIndex;
 
               const circleStyles = isCompleted
                 ? "bg-black text-white border-black dark:border-white"
                 : isCurrent
-                ? "bg-white text-black border-black dark:border-white"
+                ? "bg-blue-500 text-white dark:border-black dark:border-blue-500 border-white"
                 : "bg-white text-gray-400 border-gray-300 dark:border-[#333333]";
-
-              const update = order.statusUpdates?.[step];
 
               return (
                 <li key={step} className="relative pl-12 sm:pl-14">
                   {/* Node */}
                   <div
-                    className={`absolute left-2 sm:left-3.5 top-0 w-5 h-5 sm:w-6 sm:h-6 rounded-full border flex items-center justify-center ${circleStyles}`}
-                    aria-hidden="true"
+                    className={`absolute left-2 sm:left-3.5 top-0 w-5 h-5 sm:w-6 sm:h-6 
+          rounded-full border flex items-center justify-center ${circleStyles}`}
                   >
                     {isCompleted ? (
-                      <CheckIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" />
+                      <CheckIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 " />
                     ) : (
-                      <DotIcon className="w-2 h-2 sm:w-2.5 sm:h-2.5 md:w-3 md:h-3" />
+                      <DotIcon className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
                     )}
                   </div>
 
-                  {/* Title row with desktop timestamp on the right */}
                   <div className="flex items-start justify-between gap-3">
                     <h4
                       className={`text-sm sm:text-base font-medium ${
-                        isCompleted
-                          ? "text-gray-900 dark:text-gray-100"
-                          : isCurrent
+                        isCompleted || isCurrent
                           ? "text-gray-900 dark:text-gray-100"
                           : "text-gray-500 dark:text-gray-400"
                       }`}
@@ -183,52 +217,33 @@ export default function OrderDetails() {
                       {step}
                     </h4>
 
-                    {/* Desktop timestamp (right side of title) */}
-                    {update?.timestamp && (
+                    {update?.updatedAt && (
                       <span className="hidden md:inline text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                        {new Date(update.timestamp).toLocaleString()}
+                        {new Date(update.updatedAt).toLocaleString()}
                       </span>
                     )}
                   </div>
 
-                  {/* Mobile timestamp (below title) */}
-                  {update?.timestamp && (
-                    <span className="md:hidden mt-1 block text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(update.timestamp).toLocaleString()}
-                    </span>
+                  {update?.notes && (
+                    <p className="text-xs text-gray-600 dark:text-gray-200 mt-2">
+                      {update.notes}
+                    </p>
                   )}
 
-                  {/* Optional content (render only when exists) */}
-                  {update && (
-                    <div className="mt-2 space-y-2">
-                      {update.notes && (
-                        <p className="text-xs text-gray-600 dark:text-gray-200 leading-relaxed">
-                          {update.notes}
-                        </p>
-                      )}
-
-                      {update.image && (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                          {[]
-                            .concat(update.image)
-                            .filter(Boolean)
-                            .map((src, i) => (
-                              <div
-                                key={`${step}-img-${i}`}
-                                className="aspect-[4/3] overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
-                              >
-                                <img
-                                  src={src}
-                                  alt={`${step} update ${i + 1}`}
-                                  className="h-full w-full object-cover"
-                                  loading="lazy"
-                                />
-                              </div>
-                            ))}
-                        </div>
-                      )}
-                    </div>
-                  )}
+                  {Array.isArray(update?.images) &&
+                    update.images.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {update.images.map((img, i) => (
+                          <img
+                            key={i}
+                            src={img}
+                            alt={`${step}-update-${i}`}
+                            className="w-20 h-20 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                            loading="lazy"
+                          />
+                        ))}
+                      </div>
+                    )}
                 </li>
               );
             })}

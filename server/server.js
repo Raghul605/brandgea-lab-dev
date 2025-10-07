@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import mongoose from "mongoose";
 import cron from 'node-cron';
+import cookieParser from "cookie-parser";
 
 
 //Route imports
@@ -11,9 +12,12 @@ import emailRoutes from "./routes/emailRoutes.js";
 import clothingRoutes from "./routes/clothingRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
+import userOrderRoutes from "./routes/orderRoutes.js";
 
 //admin route import
-// import clothingAdminRoutes from "./admin/routes/clothingRoute.js";
+import clothingAdminRoutes from "./admin/routes/clothingRoute.js";
+import adminAuthRoutes from "./admin/routes/authRoute.js";
+import orderRoutes from "./admin/routes/orderRoute.js";
 import ReminderIntervalRoutes from "./routes/ReminderInterval.routes.js";
 
 //Function Imports
@@ -25,7 +29,10 @@ const require = createRequire(import.meta.url);
 dotenv.config();
 
 const app = express();
+
+app.use(cookieParser());
 const PORT = process.env.PORT || 5000;
+
 
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
@@ -54,15 +61,15 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // Add security headers middleware
-// app.use((req, res, next) => {
-//   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
 
-//   // Also set other security headers
-//   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-//   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+  // // Also set other security headers
+  // res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+  // res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
 
-//   next();
-// });
+  next();
+});
 
 app.set("trust proxy", true);
 
@@ -78,14 +85,18 @@ app.use("/api/email", emailRoutes);
 app.use("/api/clothing", clothingRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/zoho", paymentRoutes);
+app.use("/api/user-order", userOrderRoutes);
 
 // Admin Routes
-// app.use("/api/admin/clothing", clothingAdminRoutes);
+app.use("/api/admin/clothing", clothingAdminRoutes);
+app.use("/api/admin/auth", adminAuthRoutes);
+app.use("/api/admin/orders", orderRoutes);
 app.use("/api/admin/email-service", ReminderIntervalRoutes);
 
 // app.get('/', (req, res) => {
 //   res.send('Server is running 🚀');
 // });
+
 
 // Start server
 app.listen(PORT, () => {

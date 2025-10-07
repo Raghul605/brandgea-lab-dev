@@ -245,7 +245,6 @@
 //     [currentChatId, user, token, chatImages, location.state, processAIResponse]
 //   );
 
-
 //   const processIncomingChat = useCallback(() => {
 //     if (
 //       location.state?.inputText &&
@@ -305,7 +304,6 @@
 //     resetChatImages,
 //     setIsChatCompleted,
 //   ]);
-
 
 //   useEffect(() => {
 //     if (!user || !token) return;
@@ -594,8 +592,6 @@
 //   );
 // }
 
-
-
 /////////////////////////////////
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -632,6 +628,7 @@ export default function ChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, token } = useAuth();
+  const userId = user?._id || user?.id;
 
   // Guards to prevent double-sends on first mount
   const initRef = useRef(false);
@@ -641,15 +638,22 @@ export default function ChatPage() {
     async (chatId, newHeading) => {
       try {
         await axios.patch(
-          `${import.meta.env.VITE_BACKEND_URL}/api/chat/update-heading/${chatId}`,
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/chat/update-heading/${chatId}`,
           { heading: newHeading },
           {
-            headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           }
         );
 
         setPreviousChats((prev) =>
-          prev.map((chat) => (chat.chatId === chatId ? { ...chat, heading: newHeading } : chat))
+          prev.map((chat) =>
+            chat.chatId === chatId ? { ...chat, heading: newHeading } : chat
+          )
         );
       } catch (error) {
         console.error("Error updating chat heading:", error);
@@ -667,7 +671,8 @@ export default function ChatPage() {
       let isCompleted = false;
 
       const newHeading =
-        (data?.gptResponse?.heading && String(data.gptResponse.heading).trim()) ||
+        (data?.gptResponse?.heading &&
+          String(data.gptResponse.heading).trim()) ||
         (data?.heading && String(data.heading).trim()) ||
         null;
 
@@ -724,12 +729,20 @@ export default function ChatPage() {
   );
 
   const sendMessageToAI = useCallback(
-    async (messageText, chatId = currentChatId, country = user?.country || "India") => {
-      if (!chatId || !user || !token) {
-        console.error("Missing required parameters:", { chatId, user: !!user, token: !!token });
+    async (
+      messageText,
+      chatId = currentChatId,
+      country = user?.country || "India"
+    ) => {
+      if (!chatId || !userId || !token) {
+        console.error("Missing required parameters:", {
+          chatId,
+          userId: !!userId,
+          token: !!token,
+        });
         return;
       }
-      if (sendingRef.current) return;           // prevent double-submit
+      if (sendingRef.current) return; // prevent double-submit
       sendingRef.current = true;
 
       setIsLoading(true);
@@ -738,18 +751,25 @@ export default function ChatPage() {
         formData.append("prompt", messageText);
         formData.append("country", country);
         formData.append("chatId", chatId);
-        formData.append("userId", user.id);
+        formData.append("userId", userId);
 
         chatImages.forEach((image) => formData.append("images", image));
 
         if (location.state?.productImages) {
-          location.state.productImages.forEach((image) => formData.append("images", image));
+          location.state.productImages.forEach((image) =>
+            formData.append("images", image)
+          );
         }
 
         const response = await axios.post(
           `${import.meta.env.VITE_BACKEND_URL}/api/clothing/validate`,
           formData,
-          { headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` } }
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         processAIResponse(response.data, chatId);
@@ -757,7 +777,10 @@ export default function ChatPage() {
         const status = error?.response?.status;
         const data = error?.response?.data;
         console.error("Error sending message to AI:", status, data, error);
-        const msg = data?.error || data?.message || `Request failed${status ? ` (HTTP ${status})` : ""}`;
+        const msg =
+          data?.error ||
+          data?.message ||
+          `Request failed${status ? ` (HTTP ${status})` : ""}`;
         showToast(setToast, msg, "error");
 
         setMessages((prev) => [
@@ -765,7 +788,8 @@ export default function ChatPage() {
           {
             id: generateUniqueId(),
             role: "ai",
-            content: "Sorry, there was an error processing your request. Please try again.",
+            content:
+              "Sorry, there was an error processing your request. Please try again.",
             timestamp: new Date(),
             type: "error",
           },
@@ -775,12 +799,26 @@ export default function ChatPage() {
         sendingRef.current = false;
       }
     },
-    [currentChatId, user, token, chatImages, location.state, processAIResponse, setMessages]
+    [
+      currentChatId,
+      user,
+      userId,
+      token,
+      chatImages,
+      location.state,
+      processAIResponse,
+      setMessages,
+    ]
   );
 
   // When redirected from Dashboard with initial prompt + images
   const processIncomingChat = useCallback(() => {
-    if (location.state?.inputText && location.state?.chatId && location.state?.country && messages.length === 0) {
+    if (
+      location.state?.inputText &&
+      location.state?.chatId &&
+      location.state?.country &&
+      messages.length === 0
+    ) {
       setCurrentChatId(location.state.chatId);
 
       setMessages([
@@ -790,12 +828,18 @@ export default function ChatPage() {
           content: location.state.inputText,
           timestamp: new Date(),
           imageUrls: location.state.productImages
-            ? location.state.productImages.map((img) => URL.createObjectURL(img))
+            ? location.state.productImages.map((img) =>
+                URL.createObjectURL(img)
+              )
             : [],
         },
       ]);
 
-      sendMessageToAI(location.state.inputText, location.state.chatId, location.state.country);
+      sendMessageToAI(
+        location.state.inputText,
+        location.state.chatId,
+        location.state.country
+      );
     }
   }, [location.state, messages.length, sendMessageToAI]);
 
@@ -803,7 +847,7 @@ export default function ChatPage() {
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/chat/new-chat`,
-        { userId: user.id },
+        { userId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -815,11 +859,11 @@ export default function ChatPage() {
     } catch (error) {
       console.error("Error creating new chat:", error);
     }
-  }, [user, token, resetChatImages]);
+  }, [userId, token, resetChatImages]);
 
   // Initial mount guard to avoid duplicate first call
   useEffect(() => {
-    if (!user || !token) return;
+    if (!userId || !token) return;
     if (initRef.current) return;
     initRef.current = true;
 
@@ -829,15 +873,25 @@ export default function ChatPage() {
     } else if (!hasIncomingChat && !currentChatId) {
       createNewChat();
     }
-  }, [user, token, location.state, messages.length, currentChatId, processIncomingChat, createNewChat]);
+  }, [
+    userId,
+    token,
+    location.state,
+    messages.length,
+    currentChatId,
+    processIncomingChat,
+    createNewChat,
+  ]);
 
   // Load previous chats for selector
   useEffect(() => {
-    if (!user || !token) return;
+    if (!userId || !token) return;
     (async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/chat/previous-chats/${user.id}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/chat/previous-chats/${
+            userId
+          }`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
         setPreviousChats(res.data.chats || []);
@@ -845,12 +899,13 @@ export default function ChatPage() {
         console.error("Failed to fetch previous chats:", e);
       }
     })();
-  }, [user, token]);
+  }, [userId, token]);
 
   // Auto-scroll to bottom
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -877,9 +932,12 @@ export default function ChatPage() {
   const handleNewChat = () => navigate("/dashboard", { replace: true });
 
   const loadChat = async (chatId) => {
+    if (!userId || !token) return;
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/chat/open-chat/${user.id}/${chatId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/chat/open-chat/${
+          userId
+        }/${chatId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -893,7 +951,8 @@ export default function ChatPage() {
         } else if (msg.sender === "gpt") {
           if (msg.content.question) content = msg.content.question;
           else if (msg.content.summary) content = msg.content.summary;
-          else if (msg.content.tech_pack) content = "Here's your final estimate.";
+          else if (msg.content.tech_pack)
+            content = "Here's your final estimate.";
           else content = JSON.stringify(msg.content);
         }
 
@@ -916,7 +975,8 @@ export default function ChatPage() {
           imageUrls: msg.content.imageUrls || [],
           gptResponse: msg.content,
           chatId,
-          Payments_For_ManufacturerFind: response.data?.chat?.Payments_For_ManufacturerFind === true,
+          Payments_For_ManufacturerFind:
+            response.data?.chat?.Payments_For_ManufacturerFind === true,
         };
       });
 
@@ -935,7 +995,7 @@ export default function ChatPage() {
         onNewChat={handleNewChat}
         currentChat={{ techPack: messages.find((m) => m.techPack)?.techPack }}
         previousChats={previousChats}
-         userId={user?._id}  
+        userId={userId}
         onSelectChat={(chat) => {
           const id = chat.chatId || chat._id;
           if (!id) return;
@@ -946,7 +1006,9 @@ export default function ChatPage() {
       <div className="flex-1 flex flex-col min-h-0">
         <div className="flex justify-between p-2 sticky top-0 z-20 border-b border-slate-200/70 bg-white/70 dark:bg-black dark:border-[#333333] backdrop-blur supports-[backdrop-filter]:bg-white/50">
           <BackButton />
-          <h2 className="text-lg text-black dark:text-white font-medium">AI Product Analyser</h2>
+          <h2 className="text-lg text-black dark:text-white font-medium">
+            AI Product Analyser
+          </h2>
           <div className="flex items-center gap-4">
             <button className="flex items-center text-xs sm:text-sm text-gray-600 hover:text-gray-900 p-1.5 rounded-lg hover:bg-gray-100 transition">
               <FiCopy className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-0.5 text-black" />
@@ -961,7 +1023,6 @@ export default function ChatPage() {
             </button>
           </div>
         </div>
-        
 
         <ChatArea
           messages={messages}

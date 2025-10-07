@@ -1,0 +1,278 @@
+/* .quote-details-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 25px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+.quote-details-container:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.quote-title {
+  font-size: 26px;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.quote-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.quote-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.quote-value {
+  font-size: 17px;
+  color: #333;
+  background: #f9f9f9;
+  padding: 14px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.back-button {
+  display: inline-block;
+  text-align: center;
+  background: #4a90e2;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 16px;
+  margin-top: 15px;
+  transition: background 0.3s ease;
+}
+
+.back-button:hover {
+  background: #357abd;
+}
+
+@media screen and (max-width: 768px) {
+  .quote-details-container {
+    margin: 20px;
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .quote-title {
+    font-size: 22px;
+  }
+
+  .quote-value {
+    font-size: 16px;
+    padding: 12px;
+  }
+} */
+
+
+/* Container */
+.quote-details-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 14px;
+  
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  transition: all 0.3s ease-in-out;
+}
+
+.quote-details-container:hover {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+}
+
+/* Title */
+.quote-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.quote-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 3px;
+  margin: 10px auto 0;
+  background: #4a90e2;
+  border-radius: 2px;
+}
+
+/* Section headers */
+.quote-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 25px 0 10px;
+  border-left: 4px solid #4a90e2;
+  padding-left: 10px;
+}
+
+/* Card grid for values */
+.quote-field {
+  display: grid;
+  gap: 12px;
+}
+
+.quote-value {
+  font-size: 15px;
+  color: #333;
+  background: #fdfdfd;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  line-height: 1.5;
+}
+
+.quote-value strong {
+  color: #4a90e2;
+  margin-right: 6px;
+}
+
+/* Modern table */
+.quote-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: #fefefe;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.quote-table th,
+.quote-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f1f1;
+  text-align: left;
+  font-size: 14px;
+}
+
+.quote-table th {
+  background: #f5f8fb;
+  font-weight: 600;
+  color: #444;
+  text-transform: uppercase;
+  font-size: 13px;
+  letter-spacing: 0.4px;
+}
+
+.quote-table tr:hover td {
+  background: #f9fbfd;
+}
+
+/* Chat section */
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.chat-message {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 70%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.user-msg {
+  background: #4a90e2;
+  color: #fff;
+  align-self: flex-end;
+}
+
+.system-msg {
+  background: #f3f4f6;
+  color: #222;
+  align-self: flex-start;
+}
+
+.chat-message small {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.chat-images {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chat-images img {
+  max-width: 120px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  transition: transform 0.2s;
+}
+
+.chat-images img:hover {
+  transform: scale(1.05);
+}
+
+/* Back button */
+.back-button {
+  display: block;
+  width: fit-content;
+  margin: 30px auto 0;
+  text-align: center;
+  background: #4a90e2;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.back-button:hover {
+  background: #357abd;
+}
+
+/* Mobile responsive */
+@media screen and (max-width: 768px) {
+  .quote-details-container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  .quote-title {
+    font-size: 22px;
+  }
+
+  .quote-value {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .chat-message {
+    max-width: 90%;
+  }
+}
+

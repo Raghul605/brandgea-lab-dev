@@ -392,7 +392,7 @@ export default function ManufacturerPurchase({ chatId, paid = false, onPaid }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            userId: user.id,
+            userId: user?._id || user?.id,
             chatId,
             planKey: "basic_plan_499",
             description: "Manufacturer List Purchase",

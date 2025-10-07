@@ -533,131 +533,189 @@ import ProductDescriptionForm from "../components/Dashboard/ProductDescriptionFo
 import { templates } from "../utils/mockTemplates";
 import TemplateCard from "../components/Dashboard/TemplateCard";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import ToastNotification from "../components/UI/ToastNotification";
 import LoginModal from "../components/Auth/LoginModal";
+import { showToast } from "../utils/helpers";
 
 export default function Dashboard() {
   const [inputText, setInputText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [productImages, setProductImages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [userCountry, setUserCountry] = useState("India");
+
   const [toast, setToast] = useState({ show: false, message: "", type: "" });
-  const {
-    user,
-    token,
-    promptLogin,
-    updateUserCountry,
-    showLoginModal,
-    setShowLoginModal,
-  } = useAuth();
+  const { user, token } = useAuth();
   const navigate = useNavigate();
-  const [hasDetectedCountry, setHasDetectedCountry] = useState(false);
+  const location = useLocation();
+
+  const userId = user?._id || user?.id;
+  const userCountry = user?.country || "India";
 
   useEffect(() => {
-    if (user && token && !hasDetectedCountry) {
-      const detectCountry = async () => {
-        try {
-          const response = await axios.get("https://free.freeipapi.com/api/json/");
-          if (response.data.countryName) {
-            const detectedCountry = response.data.countryName;
-            setUserCountry(detectedCountry);
-            
-            try {
-              await updateUserCountry(detectedCountry);
-              setHasDetectedCountry(true); 
-            } catch (error) {
-              console.error("Failed to update user country", error);
-            }
-          }
-        } catch (err) {
-          console.error("Country API error:", err);
-        }
-      };
-
-      detectCountry();
+    if (location.state?.inputText) {
+      setInputText(location.state.inputText);
     }
-  }, [user, token, hasDetectedCountry, updateUserCountry]);
+    if (location.state?.imagePreviews?.length) {
+      setImagePreviews(location.state.imagePreviews);
+    }
+  }, [location.state]);
 
-  const showToast = (message, type = "info") => {
-    setToast({ show: true, message, type });
-    setTimeout(() => setToast({ show: false, message: "", type: "" }), 5000);
-  };
+  // useEffect(() => {
+  //   if (user && token && !hasDetectedCountry) {
+  //     const detectCountry = async () => {
+  //       try {
+  //         const response = await axios.get(
+  //           "https://free.freeipapi.com/api/json/"
+  //         );
+  //         if (response.data.countryName) {
+  //           const detectedCountry = response.data.countryName;
+  //           setUserCountry(detectedCountry);
+
+  //           try {
+  //             await updateUserCountry(detectedCountry);
+  //             setHasDetectedCountry(true);
+  //           } catch (error) {
+  //             console.error("Failed to update user country", error);
+  //           }
+  //         }
+  //       } catch (err) {
+  //         console.error("Country API error:", err);
+  //       }
+  //     };
+
+  //     detectCountry();
+  //   }
+  // }, [user, token, hasDetectedCountry, updateUserCountry]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!inputText.trim()) {
       showToast("Please enter a product description", "error");
       return;
     }
 
+    const goToChatWith = async ({ promptText, imgs, country }) => {
+      setIsLoading(true);
+      try {
+        const resp = await axios.post(
+          `${import.meta.env.VITE_BACKEND_URL}/api/chat/new-chat`,
+          { userId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const chatId = resp.data.chatId;
+
+        navigate("/chat", {
+          state: {
+            inputText: promptText,
+            productImages: imgs,
+            country,
+            chatId,
+          },
+        });
+      } catch (err) {
+        console.error("Error creating new chat:", err);
+        showToast("Failed to create chat", "error");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // If not logged in, prompt login then continue
     if (!user) {
-      // Store form data before showing login
-      const formData = {
+      // Save in sessionStorage
+      const cache = {
         inputText,
-        productImages,
-        userCountry,
+        imagePreviews,
+        country: userCountry,
       };
+      sessionStorage.setItem("pendingEstimate", JSON.stringify(cache));
 
-      promptLogin(async () => {
-        // After login, create a new chat and redirect to history
-        try {
-          const response = await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/api/chat/new-chat`,
-            { userId: user.id },
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const chatId = response.data.chatId;
-          navigate(`/chat`, {
-            state: {
-              inputText: formData.inputText,
-              productImages: formData.productImages,
-              country: formData.userCountry,
-              chatId: chatId,
-            },
-          });
-        } catch (error) {
-          console.error("Error creating new chat:", error);
-          showToast("Failed to create chat", "error");
-        }
-      });
+      navigate("/login", { state: { from: "/dashboard" } });
       return;
     }
 
-    // If user is logged in, proceed to create chat and redirect
-    try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/chat/new-chat`,
-        { userId: user.id },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const chatId = response.data.chatId;
-      navigate("/chat", {
-        state: {
-          inputText: inputText,
-          productImages: productImages,
-          country: userCountry,
-          chatId: chatId,
-        },
-      });
-    } catch (error) {
-      console.error("Error creating new chat:", error);
-      showToast("Failed to create chat", "error");
-    }
+    // Logged in path
+    await goToChatWith({
+      promptText: inputText,
+      imgs: productImages,
+      country: userCountry,
+    });
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (!inputText.trim()) {
+  //     showToast("Please enter a product description", "error");
+  //     return;
+  //   }
+
+  //   if (!user) {
+  //     // Store form data before showing login
+  //     const formData = {
+  //       inputText,
+  //       productImages,
+  //       userCountry,
+  //     };
+
+  //     promptLogin(async () => {
+  //       // After login, create a new chat and redirect to history
+  //       try {
+  //         const response = await axios.post(
+  //           `${import.meta.env.VITE_BACKEND_URL}/api/chat/new-chat`,
+  //           { userId: user.id },
+  //           {
+  //             headers: {
+  //               Authorization: `Bearer ${token}`,
+  //             },
+  //           }
+  //         );
+
+  //         const chatId = response.data.chatId;
+  //         navigate(`/chat`, {
+  //           state: {
+  //             inputText: formData.inputText,
+  //             productImages: formData.productImages,
+  //             country: formData.userCountry,
+  //             chatId: chatId,
+  //           },
+  //         });
+  //       } catch (error) {
+  //         console.error("Error creating new chat:", error);
+  //         showToast("Failed to create chat", "error");
+  //       }
+  //     });
+  //     return;
+  //   }
+
+  //   // If user is logged in, proceed to create chat and redirect
+  //   try {
+  //     const response = await axios.post(
+  //       `${import.meta.env.VITE_BACKEND_URL}/api/chat/new-chat`,
+  //       { userId: user.id },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+
+  //     const chatId = response.data.chatId;
+  //     navigate("/chat", {
+  //       state: {
+  //         inputText: inputText,
+  //         productImages: productImages,
+  //         country: userCountry,
+  //         chatId: chatId,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error("Error creating new chat:", error);
+  //     showToast("Failed to create chat", "error");
+  //   }
+  // };
 
   const handleImageSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -728,26 +786,29 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 pb-36">
+    <div>
       {/* Hero */}
-      <div className="mb-8 text-center">
- 
-        <h2 className="mt-4 text-2xl sm:text-3xl font-medium text-[#060A21] dark:text-white">
-          Hi, there <span aria-hidden>👋</span>
-        </h2>
-        <p className="mt-2 text-[#060A21]/70 dark:text-white text-sm font-light">
-          Describe your apparel. Get an instant estimate.
-        </p>
-      </div>
-      {/* Top: Templates (only 3, like quick suggestions) */}
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex flex-col md:min-h-[75vh] md:justify-center pt-20 sm:pt-8 md:pt-0">
+          {/* Hero */}
+          <div className="text-center">
+            <h2 className="text-2xl sm:text-3xl font-medium text-[#060A21] dark:text-white">
+              Hi, there <span aria-hidden>👋</span>
+            </h2>
+            <p className="mt-2 text-[#060A21]/70 dark:text-white text-sm font-light pb-5">
+              Let’s turn your product idea into reality — just tell me what you
+              have in mind.
+            </p>
+          </div>
+          {/* Top: Templates (only 3, like quick suggestions) */}
+          {/* <div className="max-w-4xl mx-auto">
         <div className="mb-3 flex items-center justify-between">
           <p className="text-sm font-medium text-[#060A21] dark:text-gray-200">
             Suggested templates
           </p>
         </div>
 
-        {/* Horizontal scroll on mobile, grid on md+ */}
+        Horizontal scroll on mobile, grid on md+
         <div className="md:hidden">
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory px-3">
             {templates.slice(0, 3).map((item, idx) => (
@@ -778,6 +839,23 @@ export default function Dashboard() {
             />
           ))}
         </div>
+      </div> */}
+
+          {/* Form wrapper */}
+          <div className="mt-5 sm:mt-6">
+            <ProductDescriptionForm
+              inputText={inputText}
+              setInputText={setInputText}
+              isLoading={isLoading}
+              handleSubmit={handleSubmit}
+              imagePreviews={imagePreviews}
+              handleRemoveImage={handleRemoveImage}
+              handleImageSelect={handleImageSelect}
+            />
+          </div>
+
+          <div className="h-10 sm:h-12 md:h-0" />
+        </div>
       </div>
       {/* Toasts & Auth */}
       <ToastNotification
@@ -787,16 +865,6 @@ export default function Dashboard() {
         onClose={() => setToast({ show: false, message: "", type: "" })}
       />
       <LoginModal />
-      {/* Bottom composer */}
-      <ProductDescriptionForm
-        inputText={inputText}
-        setInputText={setInputText}
-        isLoading={isLoading}
-        handleSubmit={handleSubmit}
-        imagePreviews={imagePreviews}
-        handleRemoveImage={handleRemoveImage}
-        handleImageSelect={handleImageSelect}
-      />
     </div>
   );
 }

@@ -72,10 +72,9 @@ export default function History() {
 
   const fetchChats = async () => {
     try {
+      if (!userId) return;
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/api/chat/previous-chats/${
-          user.id
-        }`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/chat/previous-chats/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -94,7 +93,7 @@ export default function History() {
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/api/chat/open-chat/${
-          user.id
+          userId
         }/${chatId}`,
         {
           headers: {

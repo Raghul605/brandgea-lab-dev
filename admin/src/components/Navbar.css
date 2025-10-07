@@ -1,0 +1,42 @@
+/* Navbar container */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #1f2937; /* dark gray background */
+  padding: 15px 30px;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Navbar title */
+.navbar__title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Logout button base style */
+.btn {
+  padding: 10px 18px;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Ghost button style */
+.btn--ghost {
+  background: transparent;
+  color: #fff;
+  border: 2px solid #fff;
+}
+
+.btn--ghost:hover {
+  background-color: #fff;
+  color: #1f2937;
+}

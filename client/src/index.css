@@ -4,6 +4,8 @@
 @import "@fontsource/dm-sans/400.css";  /* Regular */
 @import "@fontsource/dm-sans/500.css";  /* Medium */
 @import "@fontsource/dm-sans/700.css";  /* Bold */
+@import 'react-international-phone/style.css';
+
 
 @custom-variant dark (&:where(.dark, .dark *));
 @theme {
@@ -119,6 +121,9 @@ code {
     background: #d1d5db;               /* gray-300 on hover */
   }
 }
+
+
+
 
 
 /* @keyframes text-cycle {

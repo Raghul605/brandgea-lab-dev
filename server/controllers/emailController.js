@@ -121,7 +121,7 @@ export const sendManufacturingEmail = async (req, res) => {
       </p>
       <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Your Product Brief</strong></p>
       <pre style="white-space:pre-wrap;background:#0b1020;color:#e5e7eb;padding:12px;border-radius:8px;margin:0 0 16px 0;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace">${promptText}</pre>
-      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Your Adjusted Manufacturing Costs</strong></p>
+      <p style="font:14px/1.6 system-ui;margin:16px 0 8px 0;"><strong>Your Manufacturing Costs</strong></p>
       ${renderCostsTable(updatedCosts)}
     `,
       userFooter // "beat your quote" ONLY for user

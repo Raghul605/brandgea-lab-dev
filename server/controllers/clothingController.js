@@ -926,8 +926,8 @@
 import uploadImages from "../utils/s3Upload.js";
 import sendEmails from "../utils/sendEmails.js";
 import OpenAI from "openai";
-import Product from "../models/product.js";
 import User from "../models/User.js";
+import Product from "../models/Product.js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -1335,12 +1335,13 @@ export const validateClothing = async (req, res) => {
         conversion_rate: conversionRate,
         cost_with_profit: updatedCosts,
       });
+      const emailHeading = chat.heading || "Product Estimate";
 
       sendEmails(
         userId,
         originalCosts,
         updatedCosts,
-        prompt,
+        emailHeading,
         chat.confirmed_tech_pack,
         files,
         profitMargin,

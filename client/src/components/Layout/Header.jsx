@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
 import LogoutConfirm from "../Auth/LogoutConfirm";
@@ -160,8 +160,9 @@ function SignOutIcon({ className = "" }) {
 /* ========================================================================== */
 
 export default function Header({ setSidebarOpen }) {
-  const { user, setShowLoginModal, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -194,6 +195,7 @@ export default function Header({ setSidebarOpen }) {
   const confirmLogout = () => {
     logout();
     setShowLogoutConfirm(false);
+    navigate("/dashboard");
   };
 
   return (
@@ -252,7 +254,7 @@ export default function Header({ setSidebarOpen }) {
         {/* User block */}
         {!user ? (
           <button
-            onClick={() => setShowLoginModal(true)}
+            onClick={() => navigate("/login")}
             className="px-4 py-2 text-sm font-medium text-white bg-black dark:bg-white dark:text-black rounded-lg hover:opacity-95 transition-colors"
           >
             Login
@@ -342,7 +344,7 @@ export default function Header({ setSidebarOpen }) {
                     role="menuitem"
                   >
                     <SignOutIcon className="w-4 h-4" />
-                    Sign out
+                    Logout
                   </button>
                 </div>
               </div>

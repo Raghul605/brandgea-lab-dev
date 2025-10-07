@@ -22,7 +22,7 @@ export default function LoginModal() {
       setToast({show: true, message:error, type:"error"});
             const timer = setTimeout(() => {
         setToast({ show: false, message: "", type: "" });
-      }, 5000);
+      });
       return () => clearTimeout(timer);
     }
   }, [error]);

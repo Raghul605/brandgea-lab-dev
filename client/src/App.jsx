@@ -16,6 +16,9 @@ import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import ChatPage from "./pages/ChatPage";
 import OrderDetails from "./pages/OrderDetails";
+import Login from "./pages/Login";
+import Signup from "./pages/SignUp";
+import ForgotPassword from "./pages/ForgotPassword";
 
 export default function App() {
   return (
@@ -25,6 +28,9 @@ export default function App() {
           <Router>
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route
                 path="/dashboard"
                 element={

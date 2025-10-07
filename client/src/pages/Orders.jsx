@@ -3,369 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import { formatCurrency, showToast } from "../utils/helpers";
 import ToastNotification from "../components/UI/ToastNotification";
 import { useNavigate } from "react-router-dom";
-
-// ---------- MOCK DATA (remove when wiring to API) ----------
-const MOCK_ORDERS = [
-  {
-    _id: "1001",
-    productName: "Unisex 240 GSM Terry Tee",
-    category: "Oversized T-Shirt",
-    status: "Order Created",
-    price: 125000,
-    quantity: 500,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1520975916090-3105956dac38?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes:
-          "PO received and order created in system. Awaiting fabric shortlist from buyer.",
-        timestamp: "2025-09-08T10:15:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1581091870622-7f3c46f2b7b0?q=80&w=1200&auto=format&fit=crop",
-      },
-      // No entries beyond current step
-    },
-  },
-  {
-    _id: "1002",
-    productName: "Oversized Hoodie 400 GSM",
-    category: "Hoodie",
-    status: "Fabric Sourcing",
-    price: 420000,
-    quantity: 800,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Order opened; BOM drafted and shared with sourcing.",
-        timestamp: "2025-09-07T09:20:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes:
-          "Supplier A & B samples received. 400 GSM fleece in black shortlisted for lab dip.",
-        timestamp: "2025-09-09T14:40:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1003",
-    productName: "Polo Tee with Embroidery",
-    category: "T-Shirt",
-    status: "Fabric Cutting",
-    price: 98000,
-    quantity: 200,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1520975657288-6a2c231b4469?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Approved strike-off for embroidery; tech pack frozen.",
-        timestamp: "2025-09-05T11:00:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Piqué cotton rolls received; QC pass (AQL 2.5).",
-        timestamp: "2025-09-06T17:30:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
-      },
-      "Fabric Cutting": {
-        notes: "Marker made, cutting started on lay-8; yield on target.",
-        timestamp: "2025-09-09T10:05:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1503342217505-b0a15cf70489?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1004",
-    productName: "Custom Printed Tees",
-    category: "T-Shirt",
-    status: "Stitching",
-    price: 155000,
-    quantity: 350,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Designs locked; DTF transfer vendor confirmed.",
-        timestamp: "2025-09-04T13:45:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Combed cotton jersey 180 GSM received.",
-        timestamp: "2025-09-06T09:15:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "All sizes cut; size ratio 1:1:1:1:1.",
-        timestamp: "2025-09-07T18:25:00+05:30",
-      },
-      Stitching: {
-        notes: "Line-2 allocated; 38% WIP completed.",
-        timestamp: "2025-09-09T16:10:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1005",
-    productName: "Athleisure Joggers",
-    category: "Joggers",
-    status: "Garment QC",
-    price: 210000,
-    quantity: 400,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1618354691418-45e8e927b4b9?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "PO acknowledged; trims list finalized.",
-        timestamp: "2025-09-03T10:00:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Poly-spandex fleece lot received.",
-        timestamp: "2025-09-04T12:30:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "Cutting completed; wastage within 1.8%.",
-        timestamp: "2025-09-05T17:00:00+05:30",
-      },
-      Stitching: {
-        notes: "Stitching done; drawcord & eyelets fitted.",
-        timestamp: "2025-09-07T15:35:00+05:30",
-      },
-      "Garment QC": {
-        notes: "Inline QC pass rate 97.2%; rework negligible.",
-        timestamp: "2025-09-09T11:55:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1006",
-    productName: "Graphic Tees (DTF)",
-    category: "T-Shirt",
-    status: "Printing",
-    price: 132000,
-    quantity: 300,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1520974836861-55f0b2546b1a?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Artworks CMYK-optimized for DTF.",
-        timestamp: "2025-09-06T08:20:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Fabric in-house; shrinkage verified at 3%.",
-        timestamp: "2025-09-07T10:45:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "Cut panels sorted by bundle.",
-        timestamp: "2025-09-08T13:05:00+05:30",
-      },
-      Stitching: {
-        notes: "Neck rib attached; side seams completed.",
-        timestamp: "2025-09-08T19:20:00+05:30",
-      },
-      Printing: {
-        notes: "DTF transfers applied on 40% pieces.",
-        timestamp: "2025-09-09T15:10:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1542037104857-ffbb0b9155fb?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1007",
-    productName: "Printed Hoodies",
-    category: "Hoodie",
-    status: "Printed Garment QC",
-    price: 265000,
-    quantity: 450,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1520975940462-36a92c1b53a2?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Order kicked off; hood drawcords color-matched.",
-        timestamp: "2025-09-02T11:40:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Brushed fleece procured from Vendor K.",
-        timestamp: "2025-09-03T16:25:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "Cutting & bundling completed.",
-        timestamp: "2025-09-04T18:10:00+05:30",
-      },
-      Stitching: {
-        notes: "All panels stitched; kangaroo pocket aligned.",
-        timestamp: "2025-09-06T10:00:00+05:30",
-      },
-      Printing: {
-        notes: "Screen prints cured; adhesion OK.",
-        timestamp: "2025-09-07T19:45:00+05:30",
-      },
-      "Printed Garment QC": {
-        notes: "Print QC underway; 20 defects flagged for touch-up.",
-        timestamp: "2025-09-09T12:50:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1008",
-    productName: "Basic Track Pants",
-    category: "Track Pants",
-    status: "Packing",
-    price: 175000,
-    quantity: 380,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1562158070-5bf9f1f3a3f2?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Order confirmed; hangtags finalized.",
-        timestamp: "2025-09-01T09:30:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Interlock fabric sourced locally.",
-        timestamp: "2025-09-02T14:05:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "Cut parts packed by size bundles.",
-        timestamp: "2025-09-03T18:40:00+05:30",
-      },
-      Stitching: {
-        notes: "Elastic waistband and cuffs attached.",
-        timestamp: "2025-09-05T12:15:00+05:30",
-      },
-      "Garment QC": {
-        notes: "Final QC pass 96.5%.",
-        timestamp: "2025-09-06T17:55:00+05:30",
-      },
-      Printing: {
-        notes: "Brand mark heat-transfer applied.",
-        timestamp: "2025-09-07T10:20:00+05:30",
-      },
-      "Printed Garment QC": {
-        notes: "Transfers checked for peel; OK.",
-        timestamp: "2025-09-07T16:45:00+05:30",
-      },
-      Packing: {
-        notes: "Polybag + carton packing in progress.",
-        timestamp: "2025-09-09T09:05:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1581092334607-1e7eab0a3f5c?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1009",
-    productName: "Sports Jerseys",
-    category: "Jersey",
-    status: "Shipping",
-    price: 320000,
-    quantity: 600,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1503341338985-c0477be52513?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Bulk PO received; sizes locked.",
-        timestamp: "2025-08-30T08:10:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Poly mesh acquired; breathability test passed.",
-        timestamp: "2025-08-31T13:10:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "Auto-cutter used; minimal wastage.",
-        timestamp: "2025-09-01T15:30:00+05:30",
-      },
-      Stitching: {
-        notes: "Sleeves and side panels attached.",
-        timestamp: "2025-09-03T11:25:00+05:30",
-      },
-      Printing: {
-        notes: "Numbers & names sublimated.",
-        timestamp: "2025-09-05T18:00:00+05:30",
-      },
-      "Printed Garment QC": {
-        notes: "Color fastness checked; OK.",
-        timestamp: "2025-09-06T12:35:00+05:30",
-      },
-      Packing: {
-        notes: "Cartons sealed with export labels.",
-        timestamp: "2025-09-07T16:30:00+05:30",
-      },
-      Shipping: {
-        notes: "Dispatched via BlueDart AWB 1289XXXX.",
-        timestamp: "2025-09-09T10:50:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1556909172-54557c7e4fb4?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-  {
-    _id: "1010",
-    productName: "Premium Piqué Polos",
-    category: "T-Shirt",
-    status: "Delivered",
-    price: 540000,
-    quantity: 900,
-    shippingAddress: "K.Nattapatti, Madurai",
-    productImage:
-      "https://images.unsplash.com/photo-1503341338985-c0477be52513?q=80&w=1200&auto=format&fit=crop",
-    statusUpdates: {
-      "Order Created": {
-        notes: "Kickoff done; collar style Button-Down.",
-        timestamp: "2025-08-20T10:00:00+05:30",
-      },
-      "Fabric Sourcing": {
-        notes: "Piqué cotton received; shrinkage 4.2% (pre-washed).",
-        timestamp: "2025-08-22T15:00:00+05:30",
-      },
-      "Fabric Cutting": {
-        notes: "Lay planning optimized for stripe matching.",
-        timestamp: "2025-08-24T09:30:00+05:30",
-      },
-      Stitching: {
-        notes: "Plackets and collars aligned; good finish.",
-        timestamp: "2025-08-26T18:45:00+05:30",
-      },
-      Printing: {
-        notes: "Brand chest logo embroidered (not printed).",
-        timestamp: "2025-08-28T14:15:00+05:30",
-      },
-      "Printed Garment QC": {
-        notes: "Embroidery threads trimmed; QC pass.",
-        timestamp: "2025-08-29T11:20:00+05:30",
-      },
-      Packing: {
-        notes: "Folded, size stickered, boxed.",
-        timestamp: "2025-08-30T16:55:00+05:30",
-      },
-      Shipping: {
-        notes: "Shipped via VRL; LR# 77XX34.",
-        timestamp: "2025-09-01T08:05:00+05:30",
-      },
-      Delivered: {
-        notes: "Delivered to consignee. POD uploaded.",
-        timestamp: "2025-09-03T13:40:00+05:30",
-        image:
-          "https://images.unsplash.com/photo-1515165562835-c3b8c8e3f4a0?q=80&w=1200&auto=format&fit=crop",
-      },
-    },
-  },
-];
+import axios from "axios";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -375,34 +13,37 @@ export default function Orders() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // ---------- USE MOCK DATA NOW ----------
-    setLoading(true);
-    // Simulate a short load so the spinner shows nicely
-    const timer = setTimeout(() => {
-      setOrders(MOCK_ORDERS);
-      setLoading(false);
-    }, 400);
-    return () => clearTimeout(timer);
-
-    // ---------- API FETCH (restore this later) ----------
-    // if (user && token) { fetchOrders(); }
+    if (user?.email && token) {
+      fetchOrders();
+    }
   }, [user, token]);
 
-  // const fetchOrders = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const response = await axios.get(
-  //       `${import.meta.env.VITE_BACKEND_URL}/api/orders/user-orders/${user.id}`,
-  //       { headers: { Authorization: `Bearer ${token}` } }
-  //     );
-  //     setOrders(response.data.orders || []);
-  //   } catch (error) {
-  //     console.error("Error fetching orders:", error);
-  //     showToast(setToast, "Failed to load orders", "error");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/user-order/all-orders`,
+        { params: { email: user.email } }
+      );
+
+      const mapped = response.data.map((o) => ({
+        _id: o._id,
+        productName: o.product?.productName || "",
+        garmentType: o.product?.garmentType || "N/A",
+        totalQuantity: o.product?.totalQuantity || 0,
+        totalLotValue: o.product?.totalLotValue || 0,
+        status: o.status?.currentStatus || "Order Created",
+        productImage: o.files?.[0] || null,
+      }));
+
+      setOrders(mapped);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      showToast(setToast, "Failed to load orders", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRowClick = (order) => {
     navigate(`/orders/${order._id}`, { state: { order } });
@@ -491,43 +132,50 @@ export default function Orders() {
         </div>
       ) : (
         <>
-          {/* Mobile/Tablet: Card list (default) */}
-
+          {/* Mobile/Tablet list */}
           <ul className="grid gap-4 md:hidden">
             {orders.map((order) => (
               <li key={order._id}>
                 <button
                   type="button"
                   onClick={() => handleRowClick(order)}
-                  onKeyDown={(e) =>
-                    (e.key === "Enter" || e.key === "") && handleRowClick(order)
-                  }
                   className="w-full text-left bg-white dark:bg-black rounded-xl shadow border border-gray-100 dark:border-[#333333] overflow-hidden focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  role="button"
-                  aria-label={`Open order ${order.productName}`}
                 >
                   <div className="flex gap-3 p-3">
-                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-[#333333]">
-                      <img
-                        loading="laze"
-                        src={
-                          order.productImage ||
-                          "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1770&auto=format&fit=crop"
-                        }
-                        alt={order.productName}
-                        className="h-full w-full object-cover object-center"
-                      />
+                    <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-[#333333] bg-transparent">
+                      {order.productImage ? (
+                        <img
+                          loading="lazy"
+                          src={order.productImage}
+                          alt={`Order ${order._id} image`}
+                          className="h-full w-full object-cover object-center"
+                        />
+                      ) : (
+                        // Empty area if no image
+                        <div className="h-full w-full" />
+                      )}
                     </div>
+
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-col items-start justify-between gap-4">
-                        <div className="min-w-0">
-                          <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
-                            {order.productName}
-                          </p>
-                          <p className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">
-                            {order.category}
-                          </p>
+                      <div className="flex flex-col gap-1">
+                        <p className="font-medium text-sm text-gray-900 dark:text-white truncate">
+                          {/* {order.garmentType} */}
+                          {order.productName}
+                        </p>
+                        <p className="text-xs font-medium text-gray-500 dark:text-gray-400 truncate">
+                          Order ID: {order._id}
+                        </p>
+                        <div className="mt-2 flex items-center justify-between">
+                          <span className="text-sm font-medium text-gray-900 dark:text-white">
+                            {formatCurrency(order.totalLotValue)}
+                          </span>
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            Qty: {order.totalQuantity}
+                          </span>
                         </div>
+                      </div>
+
+                      <div className="mt-2 flex items-center justify-between">
                         <span
                           className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${getStatusColor(
                             order.status
@@ -544,15 +192,6 @@ export default function Orders() {
                             width: `${getStatusProgress(order.status)}%`,
                           }}
                         />
-                      </div>
-
-                      <div className="mt-2 flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-900 dark:text-white">
-                          {formatCurrency(order.price)}
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          Qty: {order.quantity}
-                        </span>
                       </div>
                     </div>
                   </div>
@@ -597,20 +236,17 @@ export default function Orders() {
                           <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-gray-200 dark:border-[#333333]">
                             <img
                               loading="lazy"
-                              src={
-                                order.productImage ||
-                                "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=1770&auto=format&fit=crop"
-                              }
-                              alt={order.productName}
+                              src={order.productImage}
+                              alt={order.garmentType}
                               className="h-full w-full object-cover object-center"
                             />
                           </div>
                           <div className="ml-4">
                             <div className="font-medium text-gray-900 dark:text-white">
-                              {order.productName}
+                              {order.garmentType}
                             </div>
                             <div className="text-gray-500 text-sm dark:text-gray-400">
-                              {order.category}
+                              Order ID: {order._id}
                             </div>
                           </div>
                         </div>
@@ -636,10 +272,10 @@ export default function Orders() {
                       </td>
                       <td className="py-4 px-6">
                         <div className="text-sm text-gray-900 dark:text-white font-medium">
-                          {formatCurrency(order.price)}
+                          {formatCurrency(order.totalLotValue)}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          Qty: {order.quantity}
+                          Qty: {order.totalQuantity}
                         </div>
                       </td>
                     </tr>
