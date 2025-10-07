@@ -17,7 +17,7 @@ import ProtectedRoute from "./components/Auth/ProtectedRoute";
 import ChatPage from "./pages/ChatPage";
 import OrderDetails from "./pages/OrderDetails";
 import Login from "./pages/Login";
-import Signup from "./pages/SignUp";
+import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 
 export default function App() {
