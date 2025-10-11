@@ -95,12 +95,10 @@
 //     </form>
 //   );
 // }
-
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { FiX } from "react-icons/fi";
-import { GoPlusCircle } from "react-icons/go";
 import { MdArrowOutward } from "react-icons/md";
-import { IoIosAttach, IoIosLink } from "react-icons/io";
+import { IoIosLink } from "react-icons/io";
 import { templates } from "../../utils/mockTemplates";
 
 export default function ProductDescriptionForm({
@@ -115,7 +113,6 @@ export default function ProductDescriptionForm({
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // drag & drop images
   const onDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -127,11 +124,8 @@ export default function ProductDescriptionForm({
   const onDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    const dtFiles = Array.from(e.dataTransfer.files || []);
-    if (dtFiles.length) {
-      const evt = { target: { files: dtFiles } };
-      handleImageSelect(evt);
-    }
+    const files = Array.from(e.dataTransfer.files || []);
+    if (files.length) handleImageSelect({ target: { files } });
   };
 
   const handleSurprise = () => {
@@ -149,14 +143,13 @@ export default function ProductDescriptionForm({
       className="w-full mx-auto"
     >
       <div
-        className={` relative overflow-hidden rounded-2xl
-          border border-gray-200/70 dark:border-[#333333]
+        className={`relative overflow-hidden rounded-2xl border border-gray-200/70 dark:border-[#333333]
           bg-white/90 dark:bg-black/90 backdrop-blur
           shadow-[0_6px_28px_rgba(0,0,0,0.08)]
           ${isDragging ? "ring-2 ring-gray-500" : ""}
         `}
       >
-        {/* Top: Images (if any) */}
+        {/* ====== IMAGE PREVIEWS ====== */}
         {imagePreviews.length > 0 && (
           <div className="px-3 pt-3">
             <div className="flex gap-2 overflow-x-auto pb-1">
@@ -185,38 +178,36 @@ export default function ProductDescriptionForm({
           </div>
         )}
 
+        {/* ====== TEXTAREA ====== */}
         <div className="px-3 sm:px-4 pt-2">
-          <label htmlFor="description" className="sr-only">
-            Product Description
-          </label>
           <textarea
             id="description"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder="Example: White T-Shirt 100% Cotton 220GSM"
-            className="w-full min-h-[52px] max-h-[200px] resize-none rounded-xl placeholder:text-xs   bg-white dark:bg-black border border-transparent text-xs sm:text-sm text-[#060A21] dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400
+            className="w-full min-h-[52px] max-h-[200px] resize-none rounded-xl
+            bg-white dark:bg-black border border-transparent
+            text-xs sm:text-sm text-[#060A21] dark:text-gray-100
+            placeholder:text-gray-500 dark:placeholder:text-gray-400
             px-3 py-3 focus:outline-none focus:ring-0 focus:border-gray-300 dark:focus:border-[#333333]"
             disabled={isLoading}
           />
         </div>
 
-        {/* Bottom bar: actions */}
-        <div className="px-3 sm:px-4 pb-3">
-          <div className="flex items-center gap-3">
+        {/* ====== ACTION BAR ====== */}
+        <div className="px-3 sm:px-4 pb-3 pt-2">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Secondary action — Surprise me */}
             <button
               type="button"
               onClick={handleSurprise}
               disabled={isLoading}
               className="inline-flex items-center justify-center gap-2 rounded-xl px-3 py-1.5
-                         text-white text-xs sm:text-sm font-light
-                          bg-gradient-to-r from-[#7B61FF] via-[#4A76FF] to-[#0095FF]
-shadow-[0_6px_20px_rgba(123,97,255,0.3)]
-                         dark:bg-gradient-to-r dark:from-[#462E8F] dark:via-[#2847A4] dark:to-[#006AC0]
-                         hover:opacity-95 active:scale-[0.99]
-                         dark:shadow-[0_6px_20px_rgba(0,106,192,0.25)]
-                         disabled:opacity-60 disabled:cursor-not-allowed"
+              text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300
+              border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-[#1a1a1a]
+              transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Surprise me!
+              Surprise me
             </button>
 
             {/* Hidden file input */}
@@ -229,8 +220,10 @@ shadow-[0_6px_20px_rgba(123,97,255,0.3)]
               onChange={handleImageSelect}
               disabled={isLoading}
             />
-            {/* Right group: Attach + Estimate */}
-            <div className="ml-auto flex items-center sm:gap-4 gap-3">
+
+            {/* Right group */}
+            <div className="ml-auto flex items-center sm:gap-4 gap-2">
+              {/* Attach Button */}
               <button
                 type="button"
                 onClick={() => fileInputRef.current.click()}
@@ -242,20 +235,25 @@ shadow-[0_6px_20px_rgba(123,97,255,0.3)]
                 <IoIosLink className="w-4 h-4" />
                 Attach
               </button>
+
+              {/* Primary action — Estimate */}
               <button
                 type="submit"
                 disabled={isLoading || !inputText.trim()}
-                className="inline-flex items-center gap-1 text-black hover:opacity-80 cursor-pointer disabled:opacity-50 transition dark:text-white "
+                className="inline-flex items-center justify-center gap-1 rounded-xl px-3 py-1.5
+                text-white text-xs sm:text-sm font-medium
+                bg-gradient-to-r from-[#7B61FF] via-[#4A76FF] to-[#0095FF]
+                shadow-[0_6px_20px_rgba(123,97,255,0.3)]
+                dark:bg-gradient-to-r dark:from-[#462E8F] dark:via-[#2847A4] dark:to-[#006AC0]
+                hover:opacity-95 active:scale-[0.99]
+                transition disabled:opacity-60 disabled:cursor-not-allowed"
                 aria-label="Get Estimate"
               >
                 {isLoading ? (
                   <span className="text-sm">Processing…</span>
                 ) : (
                   <>
-                    <span className="sm:text-sm text-xs xs:inline">
-                      Estimate
-                    </span>
-
+                    <span className="sm:text-sm text-xs">Estimate</span>
                     <MdArrowOutward className="w-4 h-4" />
                   </>
                 )}
@@ -264,7 +262,7 @@ shadow-[0_6px_20px_rgba(123,97,255,0.3)]
           </div>
         </div>
 
-        {/* Drag overlay cue */}
+        {/* ====== Drag overlay cue ====== */}
         {isDragging && (
           <div className="pointer-events-none absolute inset-0 rounded-2xl border-2 border-dashed border-[#060A21]/50"></div>
         )}
@@ -272,3 +270,4 @@ shadow-[0_6px_20px_rgba(123,97,255,0.3)]
     </form>
   );
 }
+

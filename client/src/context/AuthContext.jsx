@@ -179,10 +179,22 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Restore session from storage first
+  useEffect(() => {
+    const savedUser = sessionStorage.getItem("user");
+    const savedToken = sessionStorage.getItem("token");
+
+    if (savedUser && savedToken) {
+      setUser(JSON.parse(savedUser));
+      setToken(savedToken);
+    }
+    setIsLoading(false);
+  }, []);
 
   useEffect(() => {
-    const init = async () => {
+    const refreshSession = async () => {
       try {
         const resp = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`,
@@ -197,8 +209,8 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(false);
       }
     };
-    init();
-  }, []);
+    if (token) refreshSession();
+  }, [token]);
 
   // Centralized login function
   const login = (userData, sessionToken) => {
@@ -208,18 +220,6 @@ export const AuthProvider = ({ children }) => {
     sessionStorage.setItem("user", JSON.stringify(userData));
     sessionStorage.setItem("token", sessionToken);
   };
-
-  // On init, check localStorage first, then sessionStorage
-  useEffect(() => {
-    const savedUser = sessionStorage.getItem("user");
-    const savedToken = sessionStorage.getItem("token");
-
-    if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
-      setToken(savedToken);
-    }
-    setIsLoading(false);
-  }, []);
 
   const logout = async () => {
     try {

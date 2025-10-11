@@ -62,6 +62,7 @@ export default function MobileHeader({
   onSelectChat,
   userId,
   onChatsChange,
+  startOpenPreviousChats = false,
 }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showPreviousChats, setShowPreviousChats] = useState(false);
@@ -69,6 +70,10 @@ export default function MobileHeader({
 
   const menuRef = useRef(null);
   const menuBtnRef = useRef(null);
+
+     useEffect(() => {
+    if (startOpenPreviousChats) setShowPreviousChats(true);
+  }, [startOpenPreviousChats]);
 
   useEffect(() => {
     const onClickAway = (e) => {
@@ -226,7 +231,8 @@ export default function MobileHeader({
         >
           <div
             className="fixed bottom-0 left-0 right-0 max-h-[70vh] rounded-t-2xl bg-white dark:bg-black shadow-2xl border-t border-gray-200/70 dark:border-[#333333] p-4"
-            onClick={() => handleDeleteChat()}
+            // onClick={() => handleDeleteChat()}
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Drag handle */}
             <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-gray-300 dark:bg-white" />

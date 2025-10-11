@@ -929,7 +929,6 @@ import OpenAI from "openai";
 import User from "../models/User.js";
 import Product from "../models/product.js";
 
-
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const ProfitMarginIndia = Number(process.env.Profit_Marg_India) || 2;
@@ -943,7 +942,7 @@ function convertINRtoUSD(inrAmount) {
 function adjustManufacturingCosts(costs, country) {
   const adjusted = {};
   if (!costs) return adjusted;
-  const isIN = country.toLowerCase() === "IN";
+  const isIN = country.toLowerCase() === "india";
   for (const k of Object.keys(costs)) {
     if (k === "currency") continue;
     const base = Number(costs[k] || 0);
@@ -1094,7 +1093,7 @@ Return ONLY this JSON (no extra text/keys):
     "100": number,
     "250": number,
     "1000": number,
-    "currency": "${country.toLowerCase() === "IN" ? "INR" : "USD"}"
+    "currency": "${country.toLowerCase() === "india" ? "INR" : "USD"}"
   },
   "heading": "String",
   "match": true
@@ -1325,7 +1324,7 @@ export const validateClothing = async (req, res) => {
 
     if (isFinalAnswer && updatedCosts) {
       const profitMargin =
-        country.toLowerCase() === "IN" ? ProfitMarginIndia : ProfitMarginUS;
+        country.toLowerCase() === "india" ? ProfitMarginIndia : ProfitMarginUS;
       await Product.create({
         user_id: userId,
         chat_id: chatId,

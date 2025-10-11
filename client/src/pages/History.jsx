@@ -306,6 +306,7 @@ export default function History() {
         onChatsChange={handleChatsChange}
         onSelectChat={(chat) => loadChat(chat.chatId || chat._id)}
         currentChat={{ techPack: messages.find((m) => m.techPack)?.techPack }}
+        startOpenPreviousChats={true}
       />
 
       <div className="flex flex-1 min-h-0">
