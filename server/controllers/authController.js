@@ -63,7 +63,7 @@ export async function sendVerificationOtp({
 
   if (deliveryMethod === "sms") {
     const formattedNumber = formatNumberFor2Factor(identifierValue);
-    const url = `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${formattedNumber}/AUTOGEN3/user-register-template`;
+    const url = `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/${formattedNumber}/AUTOGEN/user-register-template`;
     const resp = await axios.get(url);
 
     if (resp.data.Status !== "Success") {
