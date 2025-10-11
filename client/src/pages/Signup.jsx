@@ -6,6 +6,7 @@ import "react-international-phone/style.css";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { getDeviceInfo } from "../utils/deviceInfo";
+import { messages, validators } from "../utils/helpers";
 
 const BASE = import.meta.env.VITE_BACKEND_URL;
 const DELIVERY_METHOD = "sms";
@@ -29,19 +30,17 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
 
-  // validators
-  const isValidMobile = (val) =>
-    /^\+\d{8,15}$/.test((val || "").replace(/\s/g, ""));
-  const isValidEmail = (e) =>
-    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((e || "").trim().toLowerCase());
+  const cleanMobile = mobile.replace(/\s/g, "");
+
+  const isNameOk = validators.isNameValid(name);
+  const isMobileOk = validators.isMobileValid(mobile);
+  const isEmailOk = validators.isEmailValid(email);
+  const isPwdOk = validators.isPasswordValid(password);
+  const isOtpOk = validators.isOtpValid(otp);
 
   const canSendOtp = useMemo(
-    () =>
-      name.trim().length >= 2 &&
-      isValidMobile(mobile) &&
-      isValidEmail(email) &&
-      password.length >= 6,
-    [name, mobile, email, password]
+    () => isNameOk && isMobileOk && isEmailOk && isPwdOk,
+    [isNameOk, isMobileOk, isEmailOk, isPwdOk]
   );
 
   // --- SIGN UP: SEND OTP ---
@@ -50,6 +49,7 @@ export default function Signup() {
     setErr(null);
 
     if (!canSendOtp) return setErr("Please complete all fields correctly.");
+
     try {
       setLoading(true);
       await axios.post(
@@ -57,9 +57,9 @@ export default function Signup() {
         {
           name: name.trim(),
           email: email.trim().toLowerCase(),
-          mobile: mobile.replace(/\s/g, ""),
+          mobile: cleanMobile,
           password,
-          deliveryMethod: DELIVERY_METHOD, // "sms"
+          deliveryMethod: DELIVERY_METHOD,
         },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -77,9 +77,7 @@ export default function Signup() {
     e.preventDefault();
     setErr(null);
 
-    if (!/^\d{6}$/.test((otp || "").trim())) {
-      return setErr("Enter the 6 digit OTP sent to your mobile.");
-    }
+    if (!isOtpOk) return setErr(messages.otp);
 
     try {
       setLoading(true);
@@ -89,7 +87,7 @@ export default function Signup() {
         {
           otp: otp.trim(),
           deliveryMethod: DELIVERY_METHOD,
-          identifierValue: mobile.replace(/\s/g, ""),
+          identifierValue: cleanMobile,
         },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -99,7 +97,7 @@ export default function Signup() {
       const loginResp = await axios.post(
         `${BASE}/api/auth/login`,
         {
-          mobile: mobile.replace(/\s/g, ""),
+          mobile: cleanMobile,
           password,
           ...device,
         },
@@ -132,7 +130,7 @@ export default function Signup() {
       await axios.post(
         `${BASE}/api/auth/resend-otp`,
         {
-          identifierValue: mobile.replace(/\s/g, ""),
+          identifierValue: cleanMobile,
           deliveryMethod: DELIVERY_METHOD,
         },
         { headers: { "Content-Type": "application/json" } }
@@ -163,12 +161,10 @@ export default function Signup() {
         </h1>
         <p className="text-gray-400 text-center text-sm mt-1 mb-7">
           {otpStep
-            ? "Enter the OTP we sent to your mobile."
+            ? "Enter the OTP you received on the voice call"
             : "Quote faster, manage smarter, grow stronger"}
         </p>
-
-        {/* MESSAGES */}
-        {err && <p className="text-sm text-red-400 mb-3 text-center">{err}</p>}
+        {err && <p className="text-xs text-red-400 mb-2 text-center">{err}</p>}
 
         {!otpStep && (
           <form onSubmit={handleSendOtp} className="space-y-5">
@@ -181,6 +177,9 @@ export default function Signup() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
+              {!isNameOk && !!name && (
+                <p className="text-xs text-red-400 mt-1">{messages.name}</p>
+              )}
             </div>
 
             {/* Mobile */}
@@ -201,6 +200,10 @@ export default function Signup() {
                   listItemClassName: "!hover:bg-[#11151b]",
                 }}
               />
+
+              {!isMobileOk && !!mobile && (
+                <p className="text-xs text-red-400 mt-1">{messages.mobile}</p>
+              )}
             </div>
 
             {/* Email */}
@@ -213,6 +216,10 @@ export default function Signup() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+
+              {!isEmailOk && !!email && (
+                <p className="text-xs text-red-400 mt-1">{messages.email}</p>
+              )}
             </div>
 
             {/* Password */}
@@ -237,6 +244,9 @@ export default function Signup() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {!isPwdOk && !!password && (
+                <p className="text-xs text-red-400 mt-1">{messages.password}</p>
+              )}
             </div>
 
             {/* CTA */}
@@ -261,6 +271,10 @@ export default function Signup() {
                 onChange={(e) => setOtp(e.target.value)}
                 inputMode="numeric"
               />
+
+              {!isOtpOk && !!otp && (
+                <p className="text-xs text-red-400 mt-1">{messages.otp}</p>
+              )}
             </div>
 
             <button

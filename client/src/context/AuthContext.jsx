@@ -201,25 +201,18 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Centralized login function
-  const login = (userData, sessionToken, remember = false) => {
+  const login = (userData, sessionToken) => {
     setUser(userData);
     setToken(sessionToken);
 
-    if (remember) {
-      localStorage.setItem("user", JSON.stringify(userData));
-      localStorage.setItem("token", sessionToken);
-    } else {
-      sessionStorage.setItem("user", JSON.stringify(userData));
-      sessionStorage.setItem("token", sessionToken);
-    }
+    sessionStorage.setItem("user", JSON.stringify(userData));
+    sessionStorage.setItem("token", sessionToken);
   };
 
   // On init, check localStorage first, then sessionStorage
   useEffect(() => {
-    const savedUser =
-      localStorage.getItem("user") || sessionStorage.getItem("user");
-    const savedToken =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUser = sessionStorage.getItem("user");
+    const savedToken = sessionStorage.getItem("token");
 
     if (savedUser && savedToken) {
       setUser(JSON.parse(savedUser));
@@ -242,10 +235,8 @@ export const AuthProvider = ({ children }) => {
     } catch (err) {
       console.error("Logout error:", err.response?.data || err.message);
     }
-    
+
     // Clear storage
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
     sessionStorage.removeItem("user");
     sessionStorage.removeItem("token");
 

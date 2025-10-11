@@ -496,6 +496,8 @@ import "react-international-phone/style.css";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { getDeviceInfo } from "../utils/deviceInfo";
+import { messages, validators } from "../utils/helpers";
+import { useMemo } from "react";
 
 const BASE = import.meta.env.VITE_BACKEND_URL;
 
@@ -511,11 +513,26 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState(null);
-  const [remember, setRemember] = useState(false);
+
+  const cleanMobile = mobile.replace(/\s/g, "");
+  const isMobileOk = validators.isMobileValid(cleanMobile);
+  const isEmailOk = validators.isEmailValid(email);
+  const isPwdOk = validators.isPasswordValid(password);
+
+  const canLogin = useMemo(() => {
+    return loginMethod === "email"
+      ? isEmailOk && isPwdOk
+      : isMobileOk && isPwdOk;
+  }, [loginMethod, isEmailOk, isMobileOk, isPwdOk]);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
     setErr(null);
+
+    if (!canLogin) {
+      setErr("Please fill in valid credentials.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -523,7 +540,7 @@ export default function Login() {
 
       const payload =
         loginMethod === "mobile"
-          ? { mobile: mobile.replace(/\s/g, ""), password, ...device }
+          ? { mobile: cleanMobile, password, ...device }
           : { email: email.trim().toLowerCase(), password, ...device };
 
       const resp = await axios.post(`${BASE}/api/auth/login`, payload, {
@@ -533,7 +550,7 @@ export default function Login() {
 
       const { sessionToken, user: userData } = resp.data;
       if (sessionToken && userData) {
-        login(userData, sessionToken, remember);
+         login(userData, sessionToken);
       }
 
       // Redirect back with cache if available
@@ -566,16 +583,41 @@ export default function Login() {
           </span>
         </div>
 
-        {/* Heading */}
         <h1 className="text-white text-2xl text-center font-semibold">
           Welcome Back!
         </h1>
-        <p className="text-gray-400 text-sm text-center mt-1 mb-7">
+        <p className="text-gray-400 text-sm text-center mt-1 mb-5">
           Ready to step up your style? Log in now!
         </p>
 
+        {/* Toggle Buttons */}
+        <div className="flex justify-center gap-2 mb-6">
+          <button
+            type="button"
+            onClick={() => setLoginMethod("email")}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              loginMethod === "email"
+                ? "bg-gray-200 text-black"
+                : "bg-transparent text-gray-300 border border-gray-600"
+            }`}
+          >
+            Login via Email
+          </button>
+          <button
+            type="button"
+            onClick={() => setLoginMethod("mobile")}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              loginMethod === "mobile"
+                ? "bg-gray-200 text-black"
+                : "bg-transparent text-gray-300 border border-gray-600"
+            }`}
+          >
+            Login via Mobile
+          </button>
+        </div>
+
         <form onSubmit={handleSignIn} className="space-y-5">
-          {/* Email or Mobile */}
+          {/* Input Fields */}
           {loginMethod === "email" ? (
             <div>
               <label className="block text-gray-300 text-sm mb-1">Email</label>
@@ -586,6 +628,9 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
+              {!!email && !isEmailOk && (
+                <p className="text-xs text-red-400 mt-1">{messages.email}</p>
+              )}
             </div>
           ) : (
             <div>
@@ -605,6 +650,9 @@ export default function Login() {
                   listItemClassName: "!hover:bg-[#11151b]",
                 }}
               />
+              {!!mobile && !isMobileOk && (
+                <p className="text-xs text-red-400 mt-1">{messages.mobile}</p>
+              )}
             </div>
           )}
 
@@ -628,43 +676,23 @@ export default function Login() {
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+            {!!password && !isPwdOk && (
+              <p className="text-xs text-red-400 mt-1">{messages.password}</p>
+            )}
           </div>
 
           {err && <p className="text-red-400 text-sm text-center">{err}</p>}
 
-          {/* Toggle between email & mobile */}
-          <div className="text-sm text-center text-blue-400 cursor-pointer hover:underline">
-            {loginMethod === "email" ? (
-              <span onClick={() => setLoginMethod("mobile")}>
-                Use mobile number to login
-              </span>
-            ) : (
-              <span onClick={() => setLoginMethod("email")}>
-                Use email to login
-              </span>
-            )}
-          </div>
-
-          {/* Row: remember + forgot */}
-          <div className="flex items-center justify-between text-sm">
-            <label className="flex items-center gap-2 text-gray-400 select-none">
-              <input
-                type="checkbox"
-                className="accent-blue-600 w-4 h-4"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-              />
-              Remember me
-            </label>
+          {/* Remember & Forgot */}
+          <div className="flex items-center justify-end text-sm">
             <Link
               to="/forgot-password"
-              className="text-blue-400 hover:underline"
+              className="text-gray-400 hover:underline"
             >
-              Forgot password
+              Forgot password?
             </Link>
           </div>
 
-          {/* CTA */}
           <button
             disabled={loading}
             className="w-full py-3 rounded-full bg-[#2563eb] hover:bg-[#1e55c5] text-white font-medium transition"
@@ -673,7 +701,6 @@ export default function Login() {
           </button>
         </form>
 
-        {/* Switch */}
         <p className="text-xs text-gray-400 mt-8 text-center">
           Don’t have an account?{" "}
           <Link to="/signup" className="text-blue-400 hover:underline">

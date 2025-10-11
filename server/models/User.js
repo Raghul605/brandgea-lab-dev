@@ -8,7 +8,7 @@ const messageSchema = new mongoose.Schema(
       required: true,
     },
     content: {
-      type: mongoose.Schema.Types.Mixed, // string or object as needed
+      type: mongoose.Schema.Types.Mixed,
       required: true,
     },
     timestamp: {
@@ -46,7 +46,7 @@ const chatSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-     Payments_For_ManufacturerFind: {
+    Payments_For_ManufacturerFind: {
       type: Boolean,
       default: false,
     },
@@ -75,10 +75,6 @@ const authTokenSchema = new mongoose.Schema(
 
 const userSchema = new mongoose.Schema(
   {
-    googleId: {
-      type: String,
-      unique: true,
-    },
     name: {
       type: String,
       required: true,
@@ -88,13 +84,13 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-        mobile: {
+    mobile: {
       type: String,
-      required: false,
+      required: true,
     },
-        password: {
+    password: {
       type: String,
-      required: false,
+      required: true,
     },
     verified: {
       type: Boolean,
@@ -109,7 +105,7 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
-    chat: [chatSchema], 
+    chat: [chatSchema],
     authTokens: [authTokenSchema],
     transactions: [
       {
@@ -139,54 +135,3 @@ const userSchema = new mongoose.Schema(
 const User = mongoose.model("User", userSchema);
 
 export default User;
-
-// import mongoose from "mongoose";
-
-// const chatSchema = new mongoose.Schema(
-//   {
-//     prompt: {
-//       text: { type: String, required: true },
-//       imageUrls: [{ type: String, required: true }],
-//     },
-//     manufacturing_costs: {
-//       type: mongoose.Schema.Types.Mixed,
-//       required: true,
-//     },
-//     createdAt: { type: Date, default: Date.now },
-//   },
-//   { _id: true }
-// );
-
-// const userSchema = new mongoose.Schema(
-//   {
-//     googleId: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//     },
-//     name: {
-//       type: String,
-//       required: true,
-//     },
-//     email: {
-//       type: String,
-//       required: true,
-//       unique: true,
-//     },
-//     mobile: {
-//       type: String,
-//     },
-//     picture: String,
-//     country: { type: String, default: "India" },
-//     lastLogin: {
-//       type: Date,
-//       default: Date.now,
-//     },
-//     chat: [chatSchema],
-//   },
-//   { timestamps: true, versionKey: false }
-// );
-
-// const User = mongoose.model("User", userSchema);
-
-// export default User;
