@@ -182,35 +182,67 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   // Restore session from storage first
-  useEffect(() => {
-    const savedUser = sessionStorage.getItem("user");
-    const savedToken = sessionStorage.getItem("token");
+  // useEffect(() => {
+  //   const savedUser = sessionStorage.getItem("user");
+  //   const savedToken = sessionStorage.getItem("token");
 
-    if (savedUser && savedToken) {
-      setUser(JSON.parse(savedUser));
-      setToken(savedToken);
-    }
-    setIsLoading(false);
-  }, []);
+  //   if (savedUser && savedToken) {
+  //     setUser(JSON.parse(savedUser));
+  //     setToken(savedToken);
+  //   }
+  //   setIsLoading(false);
+  // }, []);
 
-  useEffect(() => {
-    const refreshSession = async () => {
+  // useEffect(() => {
+  //   const refreshSession = async () => {
+  //     try {
+  //       const resp = await axios.get(
+  //         `${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`,
+  //         { withCredentials: true }
+  //       );
+  //       setUser(resp.data.user);
+  //       setToken(resp.data.sessionToken);
+  //     } catch {
+  //       setUser(null);
+  //       setToken(null);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   if (token) refreshSession();
+  // }, [token]);
+
+    useEffect(() => {
+    (async () => {
       try {
+        // 1) Try sessionStorage first
+        const savedUser = sessionStorage.getItem("user");
+        const savedToken = sessionStorage.getItem("token");
+        if (savedUser && savedToken) {
+          setUser(JSON.parse(savedUser));
+          setToken(savedToken);
+          return; 
+        }
+
+        // 2) Else try refresh cookie (first load / new tab)
         const resp = await axios.get(
           `${import.meta.env.VITE_BACKEND_URL}/api/auth/refresh`,
           { withCredentials: true }
         );
         setUser(resp.data.user);
         setToken(resp.data.sessionToken);
+
+        // optionally persist to sessionStorage so subsequent reloads are instant
+        sessionStorage.setItem("user", JSON.stringify(resp.data.user));
+        sessionStorage.setItem("token", resp.data.sessionToken);
       } catch {
         setUser(null);
         setToken(null);
       } finally {
         setIsLoading(false);
       }
-    };
-    if (token) refreshSession();
-  }, [token]);
+    })();
+  }, []);
 
   // Centralized login function
   const login = (userData, sessionToken) => {

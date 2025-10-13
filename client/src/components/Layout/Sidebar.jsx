@@ -60,7 +60,7 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
       {/* Mobile sidebar backdrop */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-gray-900/70 bg-opacity-50 lg:hidden"
+          className="fixed inset-0 z-20 bg-black/50 dark:bg-white/30 bg-opacity-50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
