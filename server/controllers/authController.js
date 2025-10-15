@@ -211,7 +211,14 @@ export const register = async (req, res) => {
 
 export const verifyOtp = async (req, res) => {
   try {
-    const { otp, deliveryMethod, identifierValue } = req.body;
+    const {
+      otp,
+      deliveryMethod,
+      identifierValue,
+      deviceName,
+      browser,
+      userAgent
+    } = req.body;
 
     if (!deliveryMethod || !identifierValue) {
       return res
@@ -233,6 +240,7 @@ export const verifyOtp = async (req, res) => {
         .json({ message: "Temporary record not found or expired" });
     }
 
+    // ---- OTP Validation ----
     if (deliveryMethod === "sms") {
       if (!otp) {
         return res
@@ -268,6 +276,7 @@ export const verifyOtp = async (req, res) => {
       }
     }
 
+    // ---- User Existence Check ----
     const existingUser = await User.findOne({
       $or: [{ email: tempRecord.email }, { mobile: tempRecord.mobile }],
     });
@@ -280,6 +289,7 @@ export const verifyOtp = async (req, res) => {
       return res.status(409).json({ message: "User already registered" });
     }
 
+    // ---- Register New User ----
     const newUser = new User({
       name: tempRecord.name,
       email: tempRecord.email,
@@ -288,7 +298,27 @@ export const verifyOtp = async (req, res) => {
       country: tempRecord.country,
       verified: true,
       picture: getRandomAvatar(),
+      authTokens: []
     });
+
+    const sessionTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+    const sessionToken = generateSessionToken({ userId: newUser._id });
+    const refreshToken = generateRefreshToken({ userId: newUser._id });
+
+    newUser.authTokens.push({
+      deviceName,
+      browser,
+      userAgent,
+      sessionToken,
+      sessionTokenExpiry,
+      refreshToken,
+      refreshTokenExpiry,
+      loggedIn: true,
+      lastLogin: new Date(),
+    });
+
     await newUser.save();
 
     await otpStore.deleteMany({
@@ -297,15 +327,130 @@ export const verifyOtp = async (req, res) => {
       reason: "userRegistration",
     });
 
-    return res
-      .status(200)
-      .json({ message: "User verified and registered successfully" });
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "User verified and registered successfully",
+      sessionToken,
+      deviceName,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        picture: newUser.picture,
+        country: newUser.country,
+        mobile: newUser.mobile,
+      },
+    });
   } catch (err) {
     return res
       .status(500)
       .json({ message: "OTP verification failed", error: err.message });
   }
 };
+
+// export const verifyOtp = async (req, res) => {
+//   try {
+//     const { otp, deliveryMethod, identifierValue } = req.body;
+
+//     if (!deliveryMethod || !identifierValue) {
+//       return res
+//         .status(400)
+//         .json({ message: "deliveryMethod and identifierValue are required" });
+//     }
+//     if (!["email", "sms"].includes(deliveryMethod)) {
+//       return res.status(400).json({ message: "Invalid delivery method" });
+//     }
+
+//     const tempRecord = await otpStore.findOne({
+//       "identifier.value": identifierValue,
+//       deliveryMethod,
+//       reason: "userRegistration",
+//     });
+//     if (!tempRecord) {
+//       return res
+//         .status(404)
+//         .json({ message: "Temporary record not found or expired" });
+//     }
+
+//     if (deliveryMethod === "sms") {
+//       if (!otp) {
+//         return res
+//           .status(400)
+//           .json({ message: "OTP is required for SMS verification" });
+//       }
+//       const { txnId } = tempRecord;
+//       if (!txnId) {
+//         return res
+//           .status(400)
+//           .json({ message: "Transaction ID missing for SMS verification" });
+//       }
+//       const url = `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/VERIFY/${txnId}/${otp}`;
+//       const resp = await axios.get(url);
+//       if (
+//         resp.data.Status !== "Success" ||
+//         resp.data.Details !== "OTP Matched"
+//       ) {
+//         return res.status(400).json({ message: "Invalid OTP" });
+//       }
+//     } else if (deliveryMethod === "email") {
+//       if (!otp) {
+//         return res
+//           .status(400)
+//           .json({ message: "OTP is required for email verification" });
+//       }
+//       if (
+//         tempRecord.otp !== otp ||
+//         !tempRecord.expiry ||
+//         tempRecord.expiry < new Date()
+//       ) {
+//         return res.status(400).json({ message: "Invalid or expired OTP" });
+//       }
+//     }
+
+//     const existingUser = await User.findOne({
+//       $or: [{ email: tempRecord.email }, { mobile: tempRecord.mobile }],
+//     });
+//     if (existingUser) {
+//       await otpStore.deleteMany({
+//         "identifier.value": identifierValue,
+//         deliveryMethod,
+//         reason: "userRegistration",
+//       });
+//       return res.status(409).json({ message: "User already registered" });
+//     }
+
+//     const newUser = new User({
+//       name: tempRecord.name,
+//       email: tempRecord.email,
+//       mobile: tempRecord.mobile,
+//       password: tempRecord.password,
+//       country: tempRecord.country,
+//       verified: true,
+//       picture: getRandomAvatar(),
+//     });
+//     await newUser.save();
+
+//     await otpStore.deleteMany({
+//       "identifier.value": identifierValue,
+//       deliveryMethod,
+//       reason: "userRegistration",
+//     });
+
+//     return res
+//       .status(200)
+//       .json({ message: "User verified and registered successfully" });
+//   } catch (err) {
+//     return res
+//       .status(500)
+//       .json({ message: "OTP verification failed", error: err.message });
+//   }
+// };
 
 const generateNewOtp = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
@@ -480,12 +625,11 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
-
 export const resetPassword = async (req, res) => {
   try {
-    const { email, mobile, otp, newPassword, deliveryMethod } = req.body;
+    const { email, mobile, otp, newPassword, deliveryMethod, deviceName, browser, userAgent } = req.body;
 
-    if (!otp || !newPassword || !deliveryMethod || (!email && !mobile)) {
+    if (!otp || !newPassword || !deliveryMethod || (!email && !mobile) || !deviceName || !browser || !userAgent) {
       return res.status(400).json({ message: "Required fields missing" });
     }
     if (!["email", "sms"].includes(deliveryMethod)) {
@@ -504,14 +648,15 @@ export const resetPassword = async (req, res) => {
         deliveryMethod,
         reason: "resetPassword",
       });
+
       if (!tempRecord || !tempRecord.txnId) {
-        return res
-          .status(400)
-          .json({ message: "Transaction ID missing for SMS verification" });
+        return res.status(400).json({ message: "Transaction ID missing for SMS verification" });
       }
+
       const { txnId } = tempRecord;
       const url = `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/VERIFY/${txnId}/${otp}`;
       const resp = await axios.get(url);
+
       if (
         resp.data.Status !== "Success" ||
         resp.data.Details !== "OTP Matched"
@@ -519,7 +664,6 @@ export const resetPassword = async (req, res) => {
         return res.status(400).json({ message: "Invalid or expired OTP" });
       }
 
-      // Delete temp OTP record after successful SMS OTP verification
       await otpStore.deleteOne({ _id: tempRecord._id });
     } else if (deliveryMethod === "email") {
       const otpDoc = await otpStore.findOne({
@@ -540,16 +684,148 @@ export const resetPassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
-    if (!user.verified) user.verified = true;
+    if (!user.verified) {
+      user.verified = true;
+    }
+
+    // --- Token logic replicated from login ---
+    const sessionTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+
+    const sessionToken = generateSessionToken({ userId: user._id });
+    const refreshToken = generateRefreshToken({ userId: user._id });
+
+    // Find existing token entry for this device/browser combo
+    const existingTokenIndex = user.authTokens.findIndex(
+      (t) => t.deviceName === deviceName && t.browser === browser
+    );
+
+    if (existingTokenIndex !== -1) {
+      // Update existing token entry
+      user.authTokens[existingTokenIndex] = {
+        deviceName,
+        browser,
+        userAgent,
+        sessionToken,
+        sessionTokenExpiry,
+        refreshToken,
+        refreshTokenExpiry,
+        loggedIn: true,
+        lastLogin: new Date(),
+      };
+    } else {
+      // Add new token entry
+      user.authTokens.push({
+        deviceName,
+        browser,
+        userAgent,
+        sessionToken,
+        sessionTokenExpiry,
+        refreshToken,
+        refreshTokenExpiry,
+        loggedIn: true,
+        lastLogin: new Date(),
+      });
+    }
+
     await user.save();
 
-    return res.status(200).json({ message: "Password reset successful" });
+    // Set refresh token cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      message: "Password reset successful",
+      sessionToken,
+      deviceName,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        country: user.country,
+        mobile: user.mobile,
+      },
+    });
   } catch (err) {
-    return res
-      .status(500)
-      .json({ message: "Password reset failed", error: err.message });
+    return res.status(500).json({ message: "Password reset failed", error: err.message });
   }
 };
+
+
+// export const resetPassword = async (req, res) => {
+//   try {
+//     const { email, mobile, otp, newPassword, deliveryMethod } = req.body;
+
+//     if (!otp || !newPassword || !deliveryMethod || (!email && !mobile)) {
+//       return res.status(400).json({ message: "Required fields missing" });
+//     }
+//     if (!["email", "sms"].includes(deliveryMethod)) {
+//       return res.status(400).json({ message: "Invalid delivery method" });
+//     }
+
+//     const user = await User.findOne({ $or: [{ email }, { mobile }] });
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
+
+//     if (deliveryMethod === "sms") {
+//       const identifierValue = mobile;
+//       const tempRecord = await otpStore.findOne({
+//         "identifier.value": identifierValue,
+//         deliveryMethod,
+//         reason: "resetPassword",
+//       });
+//       if (!tempRecord || !tempRecord.txnId) {
+//         return res
+//           .status(400)
+//           .json({ message: "Transaction ID missing for SMS verification" });
+//       }
+//       const { txnId } = tempRecord;
+//       const url = `https://2factor.in/API/V1/${process.env.TWOFACTOR_API_KEY}/SMS/VERIFY/${txnId}/${otp}`;
+//       const resp = await axios.get(url);
+//       if (
+//         resp.data.Status !== "Success" ||
+//         resp.data.Details !== "OTP Matched"
+//       ) {
+//         return res.status(400).json({ message: "Invalid or expired OTP" });
+//       }
+
+//       // Delete temp OTP record after successful SMS OTP verification
+//       await otpStore.deleteOne({ _id: tempRecord._id });
+//     } else if (deliveryMethod === "email") {
+//       const otpDoc = await otpStore.findOne({
+//         userId: user._id.toString(),
+//         otp,
+//         reason: "resetPassword",
+//         expiry: { $gt: new Date() },
+//         "identifier.value": email,
+//         deliveryMethod: "email",
+//       });
+
+//       if (!otpDoc) {
+//         return res.status(400).json({ message: "Invalid or expired OTP" });
+//       }
+
+//       await otpStore.deleteOne({ _id: otpDoc._id });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(newPassword, 10);
+//     user.password = hashedPassword;
+//     if (!user.verified) user.verified = true;
+//     await user.save();
+
+//     return res.status(200).json({ message: "Password reset successful" });
+//   } catch (err) {
+//     return res
+//       .status(500)
+//       .json({ message: "Password reset failed", error: err.message });
+//   }
+// };
 
 // export const resetPassword = async (req, res) => {
 //   try {

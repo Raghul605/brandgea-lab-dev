@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { messages, validators } from "../utils/helpers";
+import { getDeviceInfo } from "../utils/deviceInfo";
 
 const BASE = import.meta.env.VITE_BACKEND_URL;
 
@@ -16,6 +17,8 @@ export default function ForgetPassword() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const cleanMobile = useMemo(() => mobile.replace(/\s/g, ""), [mobile]);
 
   const isMobileOk = validators.isMobileValid(mobile);
   const isOtpOk = validators.isOtpValid(otp);
@@ -35,7 +38,7 @@ export default function ForgetPassword() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deliveryMethod: "sms",
-          mobile,
+          mobile: cleanMobile,
         }),
       });
 
@@ -61,15 +64,18 @@ export default function ForgetPassword() {
 
     try {
       setLoading(true);
+      const device = await getDeviceInfo();
       const res = await fetch(`${BASE}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           deliveryMethod: "sms",
-          mobile,
-          otp,
+          mobile: cleanMobile,
+          otp: otp.trim(),
           newPassword,
+          ...device
         }),
+        credentials: "include"
       });
 
       const data = await res.json();

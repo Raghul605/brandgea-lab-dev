@@ -793,7 +793,7 @@ export default function Dashboard() {
           {/* Hero */}
           <div className="text-center">
             <h2 className="text-2xl sm:text-3xl font-medium text-[#060A21] dark:text-white">
-              Hi, there <span aria-hidden>👋</span>
+              Hi, there
             </h2>
             <p className="mt-2 text-[#060A21]/70 dark:text-white text-sm font-light pb-5">
               Let’s turn your product idea into reality — just tell me what you

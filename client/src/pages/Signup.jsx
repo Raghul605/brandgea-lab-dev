@@ -81,19 +81,20 @@ export default function Signup() {
 
     try {
       setLoading(true);
+      const device = await getDeviceInfo();
       // verify
-      await axios.post(
+     await axios.post(
         `${BASE}/api/auth/verify-otp`,
         {
           otp: otp.trim(),
           deliveryMethod: DELIVERY_METHOD,
           identifierValue: cleanMobile,
+          ...device,
         },
-        { headers: { "Content-Type": "application/json" } }
+        { headers: { "Content-Type": "application/json" }, withCredentials: true }
       );
 
       // 2) auto-login (send device/browser fingerprint)
-      const device = await getDeviceInfo();
       const loginResp = await axios.post(
         `${BASE}/api/auth/login`,
         {

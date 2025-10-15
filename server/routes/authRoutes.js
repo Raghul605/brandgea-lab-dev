@@ -1,6 +1,5 @@
 import express from "express";
 import {
- 
   register,
   verifyOtp,
   resendOtp,
@@ -9,9 +8,7 @@ import {
   resetPassword,
   forgotPassword,
   refreshSession,
-  
 } from "../controllers/authController.js";
-
 
 const router = express.Router();
 

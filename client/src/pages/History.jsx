@@ -103,6 +103,7 @@ export default function History() {
       );
 
       const chat = response.data.chat;
+      const adjustedFinalCosts = chat.manufacturing_costs || null;
 
       // Transform messages to the format expected by ChatArea
       let lastUserImages = [];
@@ -114,6 +115,7 @@ export default function History() {
           : [];
 
         let imageUrls = [];
+        let manufacturingCosts = null;
 
         if (msg.sender === "user") {
           // capture text
@@ -142,6 +144,10 @@ export default function History() {
             msg.isFinal === true ||
             !!msg.content?.tech_pack;
 
+             manufacturingCosts = isFinalLike
+      ? adjustedFinalCosts || msg.content.manufacturing_costs || null
+      : msg.content.manufacturing_costs || null;
+
           if (isFinalLike) {
             // Prefer AI-provided images if present, else fallback to last user images
             imageUrls =
@@ -160,7 +166,7 @@ export default function History() {
           timestamp: new Date(msg.timestamp),
           type: type,
           techPack: msg.content.tech_pack,
-          manufacturingCosts: msg.content.manufacturing_costs,
+          manufacturingCosts,
           isCompleted: msg.isFinal,
           imageUrls,
           chatId: chat._id,
