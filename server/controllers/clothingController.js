@@ -1337,7 +1337,10 @@ export const validateClothing = async (req, res) => {
       });
       const emailHeading = chat.heading || "Product Estimate";
 
-      sendEmails(
+      if (!process.env.GMAIL_USER || !process.env.GMAIL_PASS || !process.env.COMPANY_EMAIL) {
+  console.error("Email not sent: Missing GMAIL_USER/GMAIL_PASS/COMPANY_EMAIL");
+} else {
+      await sendEmails(
         userId,
         originalCosts,
         updatedCosts,
@@ -1348,6 +1351,7 @@ export const validateClothing = async (req, res) => {
         country,
         chatId
       );
+    }
     }
 
     return res.json({
