@@ -6,11 +6,19 @@ import { MailLogger } from "../models/email.log.remainder.model.js";
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+    host: "smtp.gmail.com",
+  port: 587,            // STARTTLS
+  secure: false,        
   auth: {
     user: process.env.GMAIL_USER,
     pass: process.env.GMAIL_PASS,
   },
+    requireTLS: true,
+  connectionTimeout: 20000, // 20s
+  greetingTimeout: 10000,   // 10s
+  socketTimeout: 20000,     // 20s
+  logger: true,             // log to console
+  debug: true,
 });
 
 // Helpers – unchanged from your original

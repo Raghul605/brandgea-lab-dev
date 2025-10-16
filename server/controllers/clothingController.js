@@ -1346,7 +1346,7 @@ export const validateClothing = async (req, res) => {
         updatedCosts,
         emailHeading,
         chat.confirmed_tech_pack,
-        files,
+        imageUrls,
         profitMargin,
         country,
         chatId
