@@ -25,6 +25,33 @@ export default function Sidebar() {
           Users
         </NavLink>
 
+        <NavLink
+          to="/dashboard/temp-leads"
+          className={({ isActive }) =>
+            "navlink" + (isActive ? " navlink--active" : "")
+          }
+        >
+          Temp
+        </NavLink>
+
+        <NavLink
+          to="/dashboard/leads"
+          className={({ isActive }) =>
+            "navlink" + (isActive ? " navlink--active" : "")
+          }
+        >
+          Leads
+        </NavLink>
+
+        <NavLink
+          to="/dashboard/vendors"
+          className={({ isActive }) =>
+            "navlink" + (isActive ? " navlink--active" : "")
+          }
+        >
+          Vendors
+        </NavLink>
+
         {/* Orders */}
         <NavLink
           to="/dashboard/orders"
@@ -35,7 +62,7 @@ export default function Sidebar() {
           Orders
         </NavLink>
 
-        {/* ✅ New Create Order link */}
+        {/* New Create Order link */}
         <NavLink
           to="/dashboard/create-order"
           className={({ isActive }) =>

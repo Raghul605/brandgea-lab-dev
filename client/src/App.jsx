@@ -19,6 +19,7 @@ import OrderDetails from "./pages/OrderDetails";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
+import ManufacturerLeadPage from "./pages/ManufacturerLeadPage";
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/lead/:leadId" element={<ManufacturerLeadPage />} />
               <Route
                 path="/dashboard"
                 element={

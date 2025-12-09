@@ -54,6 +54,16 @@ const manufacturerFindTransactionSchema = new mongoose.Schema({
     required: false,
   },
   updatedAt: Date,
+  added_to_temp_lead_doc: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
+  data_not_found: {
+    type: Boolean,
+    default: false,
+    required: true,
+  },
 });
 
 const ManufacturerFindTransaction = mongoose.model(

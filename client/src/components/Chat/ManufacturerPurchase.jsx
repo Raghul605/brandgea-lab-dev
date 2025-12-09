@@ -317,15 +317,15 @@ export default function ManufacturerPurchase({ chatId, paid = false, onPaid }) {
   }, [paid]);
 
   // Load Zoho Payments script once
-  useEffect(() => {
-    if (window.ZPayments) return;
-    const script = document.createElement("script");
-    script.src = "https://www.zoho.com/payments/checkout/checkout.v2.js";
-    script.async = true;
-    script.onload = () => console.log("[Zoho] script loaded");
-    script.onerror = () => console.error("[Zoho] script load failed");
-    document.head.appendChild(script);
-  }, []);
+  // useEffect(() => {
+  //   if (window.ZPayments) return;
+  //   const script = document.createElement("script");
+  //   script.src = "https://www.zoho.com/payments/checkout/checkout.v2.js";
+  //   script.async = true;
+  //   script.onload = () => console.log("[Zoho] script loaded");
+  //   script.onerror = () => console.error("[Zoho] script load failed");
+  //   document.head.appendChild(script);
+  // }, []);
 
   // Create instance when we have both: script + session
   useEffect(() => {

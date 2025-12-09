@@ -20,6 +20,13 @@ import adminAuthRoutes from "./admin/routes/authRoute.js";
 import orderRoutes from "./admin/routes/orderRoute.js";
 import ReminderIntervalRoutes from "./routes/ReminderInterval.routes.js";
 
+//automation files route imports
+import tempLeadRoute from "./automation-files/routes/tempLeadRoute.js";
+import vendorManagementRoutes from "./automation-files/routes/vendorManagementRoutes.js";
+import leadManagementRoutes from "./automation-files/routes/leadManagementRoutes.js";
+import LeadPaymentTransactionsRoutes from "./automation-files/routes/leadPaymentRoutes.js";
+
+
 //Function Imports
 import { queueDueReminderEmails } from "./utils/queueDueReminderEmails.js";
 
@@ -92,6 +99,13 @@ app.use("/api/admin/clothing", clothingAdminRoutes);
 app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/orders", orderRoutes);
 app.use("/api/admin/email-service", ReminderIntervalRoutes);
+
+// automation files routes
+app.use("/api/automation/temp-lead", tempLeadRoute);
+app.use("/api/automation/vendor-management", vendorManagementRoutes);
+app.use("/api/automation/lead-management", leadManagementRoutes);
+app.use("/api/automation/lead-payments", LeadPaymentTransactionsRoutes);
+
 
 // app.get('/', (req, res) => {
 //   res.send('Server is running 🚀');

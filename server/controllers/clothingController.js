@@ -929,6 +929,8 @@ import OpenAI from "openai";
 import User from "../models/User.js";
 import Product from "../models/product.js";
 
+
+
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 const ProfitMarginIndia = Number(process.env.Profit_Marg_India) || 2;

@@ -13,6 +13,12 @@ import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";  
 import CreateOrder from "./pages/CreateOrder";    
 import TrackOrder from "./pages/TrackOrder"; // ✅ Import TrackOrder page
+import Leads from "./pages/Leads";
+import LeadDetails from "./pages/LeadDetails";
+import Vendors from "./pages/Vendors";
+import VendorDetails from "./pages/VendorDetails";
+import TempLeadDetails from "./pages/TempLeadDetails";
+import TempLeads from "./pages/TempLeads";
 
 // Auth wrapper
 function RequireAuth({ children }) {
@@ -50,6 +56,18 @@ export default function App() {
         {/* Users */}
         <Route path="users" element={<Users />} />
         <Route path="users/:id" element={<UserDetails />} />
+
+        {/* Temp Leads */}
+        <Route path="temp-leads" element={<TempLeads />} />
+        <Route path="temp-leads/:id" element={<TempLeadDetails />} />
+
+        {/* Leads */}
+        <Route path="leads" element={<Leads />} />
+        <Route path="leads/:id" element={<LeadDetails />} />
+
+        {/* Vendors */}
+        <Route path="vendors" element={<Vendors />} />
+        <Route path="vendors/:id" element={<VendorDetails />} />
 
         {/* Chat Details */}
         <Route path="chats/:userId/:chatId" element={<ChatDetails />} />
