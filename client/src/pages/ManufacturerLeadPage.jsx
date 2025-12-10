@@ -767,14 +767,14 @@ export default function ManufacturerLeadPage() {
           leadId: leadId,
           vendorEmail: vendor.vendorEmail || identifier.trim().toLowerCase(),
           amountQuoted: parseFloat(quoteAmount),
-          planKey: "basic_plan_99",
+          planKey: "lead_test_plan",
         }
       );
 
       backendData = createRes.data;
 
       // 2) Request payment via Zoho widget
-      const displayAmount = 99;
+      const displayAmount = 1;
 
       const options = {
         amount: String(displayAmount),

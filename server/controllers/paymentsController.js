@@ -874,8 +874,9 @@ import LeadQueue from "../models/LeadQueueModel.js";
 
 const PAYMENT_KEYS = JSON.parse(
   process.env.PAYMENT_KEYS || {
-    basic_plan_499: Number(process.env.basic_plan_499 || 499),
+    basic_plan_99: Number(process.env.basic_plan_99 || 99),
     standard_plan_999: Number(process.env.standard_plan_999 || 999),
+    lead_test_plan: Number(process.env.lead_test_plan || 1),
   }
 );
 // const ZOHO_ACCOUNT_ID = process.env.ZOHO_ACCOUNT_ID || "";

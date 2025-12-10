@@ -10,7 +10,7 @@ import LeadMailingFunc from "../../utils/leadMailingFunc.js";
 const PAYMENT_KEYS = process.env.PAYMENT_KEYS
   ? JSON.parse(process.env.PAYMENT_KEYS)
   : {
-      basic_plan_99: 1,
+      basic_plan_99: 99,
       standard_plan_999: 999,
       lead_test_plan: 1,
     };
