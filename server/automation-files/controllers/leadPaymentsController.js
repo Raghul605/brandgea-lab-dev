@@ -81,7 +81,7 @@ export async function createPaymentController(req, res) {
     const metaData = [
       { key: "lead_id", value: lead._id.toString() },
       { key: "user_id", value: userId?.toString() || "" },
-      { key: "chat_id", value: chatId || "" },
+      // { key: "chat_id", value: chatId || "" },
       { key: "vendor_email", value: vendorEmail },
       { key: "payment_category", value: "lead_quoting_payment" },
     ];
