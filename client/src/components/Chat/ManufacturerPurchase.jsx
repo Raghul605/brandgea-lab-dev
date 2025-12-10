@@ -394,7 +394,7 @@ export default function ManufacturerPurchase({ chatId, paid = false, onPaid }) {
           body: JSON.stringify({
             userId: user?._id || user?.id,
             chatId,
-            planKey: "basic_plan_499",
+            planKey: "basic_plan_99",
             description: "Manufacturer List Purchase",
             currency: "INR",
           }),
